@@ -1,0 +1,130 @@
+body {
+	margin: 0;
+	padding: 0;
+	background: black;
+}
+
+ul, li {
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	position: relative;
+	left: -1px;
+	background: url('/lib/img/bg.jpg') no-repeat;
+}
+
+#overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.ui-wrapper, .ui {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: white;
+	opacity: 0.1;
+}
+
+.ui {
+	background: transparent;
+	opacity: 1;
+	overflow: hidden;
+	font-family: courier;
+}
+
+#fb-root {
+	width: 0;
+	height: 0;
+}
+
+#map-wrapper, #map {
+	width: 300px;
+	height: 200px;
+	bottom: 0; top: inherit;
+}
+#map .map-dot {
+	position: absolute;
+	width: 5px;
+	height: 5px;
+}
+#map .map-dot.map-type-me {
+	background-color: green;
+}
+#map .map-dot.map-type-ally {
+	background-color: blue;
+}
+#map .map-dot.map-type-foe {
+	background-color: red;
+}
+#map .map-dot.map-type-weak {
+	background-color: black;
+}
+
+#chat-wrapper, #chat {
+	width: 280px;
+	padding: 0 0 0 20px;
+	right: 0; left: inherit;
+}
+#chat {
+	font-size: 12px;
+	padding: 2px 0 0 20px;
+}
+#chat-text {
+	position: absolute;
+	bottom: 25px;
+	right: 10px;
+	width: 280px;
+}
+
+#logger-wrapper, #logger {
+	width: 300px;
+	height: 128px;
+}
+#logger {
+	font-size: 12px;
+	padding: 2px 0 0 20px;
+	height: 126px;
+}
+
+#hud-wrapper, #hud {
+	padding: 2px 0 0 3px;
+	width: 297px;
+	height: 161px;
+	top: 130px;
+}
+#hud {
+	font-size: 16px;
+}
+
+#start, #login {
+	background: yellow;
+	color: grey;
+	position: absolute;
+	display: none;
+	font-family: courier;
+	font-size: 26px;
+	letter-spacing: 3px;
+	padding: 10px 20px;
+	border-radius: 7px;
+	cursor: pointer;
+	font-weight: bold;
+}
+#start:hover {
+	color: green;
+}
+#login .twitter, #login .facebook {
+	width: 50px;
+	height: 50px;
+	background: url('/lib/img/login-twitter.png') no-repeat;
+	float: left;
+	margin: 10px 10px 0 0;
+}
+#login .facebook {
+	background: url('/lib/img/login-facebook.png') no-repeat;
+}

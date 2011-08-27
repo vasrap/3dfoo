@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Document : jWebSocket.xml Created on : March 18, 2010, 10:24 AM Author 
+	: aschulze, puran Description: Configuration of the jWebSocket Server. This 
+	includes engines, servers, plug-ins, filter, rights, roles and users as well 
+	as logging. -->
+
+<!-- jWebSocket server configuration -->
+<jWebSocket>
+	<!-- installation can be prod or dev. 'prod'- installation means all the 
+		classes will be loaded from the jars defined in this configuration file 'dev' 
+		- installation means running directly from the source, all the jar files 
+		given are ignored. Default value if not specified would be 'prod' -->
+	<installation>dev</installation>
+
+	<!-- define the protocol, default protocol if not specified is 'json' possible 
+		values are [json|xml|csv] -->
+	<protocol>json</protocol>
+
+	<!-- the unique ID of this instance within a jWebSocket cluster can be left 
+		empty to run just a single stand-alone server Preparation for pending cluster-plug-in -->
+	<node_id>01</node_id>
+
+	<!-- Auto load required external libraries -->
+	<!-- <libraries> <library> <id>Third Party Demo</id> <url>/etc/myjars/test.jar</url> 
+		<description>n/a</description> </library> </libraries> -->
+
+	<!-- jWebSocket logging configuration -->
+	<logging>
+		<log4j>
+			<!-- log4j appender, one of the following options [console|singlefile|rollingfile] -->
+			<appender>console</appender>
+			<!-- layout, please refer to http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p - %C{1}: %m%n</pattern>
+			<!-- log-level, one of the following options: [all|debug|info|warn|error|fatal|off] -->
+			<level>debug</level>
+			<!-- filename, used only when appender != console -->
+			<filename>jWebSocket.log</filename>
+			<!-- controls write cache for logging -->
+			<buffered>true</buffered>
+			<!-- specifies the size of the write cache for logging -->
+			<buffersize>65536</buffersize>
+		</log4j>
+	</logging>
+
+	<!-- initializer class required only in 'dev' mode so that client application 
+		can register custom servers, plugins at compile time for debugging capability 
+		to test custom plugins and servers without a need for jar files -->
+	<initializerClass>org.jwebsocket.factory.JWebSocketInitializer
+	</initializerClass>
+
+	<!-- Engines available for jWebSocket. ONLY THE TOPMOST ENGINE WILL BE INITIALIZED 
+		AND RUN. YOU CANNOT RUN MULTIPLE ENGINES AT A TIME. -->
+	<!-- jWebSocket engine configuration -->
+	<engines>
+		<!-- TCP Engine Configuration -->
+		<engine>
+			<name>org.jwebsocket.tcp.TCPEngine</name>
+			<id>tcp0</id>
+			<jar>jWebSocketTCPEngine-1.0.jar</jar>
+			<port>8787</port>
+			<sslport>9797</sslport>
+			<!-- keystore file with in %JWEBSOCKET_HOME%/conf -->
+			<keystore>jWebSocket.ks</keystore>
+			<!-- password to access keystore file -->
+			<password>jWebSocket</password>
+			<!-- CAUTION! -->
+			<!-- not all browsers automatically accept self-signed certificates -->
+			<!-- please follow instructions on the jWebSocket.org website, how to 
+				trust self-signed certificates for the various browsers or how to import 
+				signed private key/certificate bundles into the keystore -->
+
+			<!-- these domains are accepted by the engine listening on the above mentioned 
+				port -->
+			<domains>
+				<domain>jwebsocket.org</domain>
+				<domain>jwebsocket.com</domain>
+				<domain>localhost</domain>
+			</domains>
+			<!-- default session timeout 1h, max timeout currently 1 hour -->
+			<timeout>0</timeout>
+			<!-- maximum size of the data packet that the engine will read, if the 
+				frame size is larger than this the connection will be closed. -->
+			<maxframesize>1048840</maxframesize>
+		</engine>
+
+		<!-- Jetty Engine Configuration -->
+		<engine>
+			<name>org.jwebsocket.jetty.JettyEngine</name>
+			<id>jetty0</id>
+			<jar>jWebSocketJettyEngine-1.0.jar</jar>
+			<!-- Attention! The jWebSocket JettyEngine listens on same port like Jetty's 
+				http. The http protocol is upgraded to use WebSockets. The http/websocket 
+				port can be configured via the Jetty configuration in the jetty.xml configuration 
+				file. -->
+			<!-- set both port settings to "0" (null) if running Jetty Servlet Container 
+				for Web Apps and embed jWebSocket library. This uses the settings from jetty.xml, 
+				wraps the existing Jetty WebSocket servlet and does not instantiate a separate 
+				engine at run time within jWebSocket. -->
+			<port>0</port>
+			<sslport>0</sslport>
+			<!-- use 80/443 for default http/ws or https/wss connections when running 
+				a jWebSocket Server and use Jetty as an engine. These settings are recommended 
+				only when running jWebSocket on a separate server beside a WebServer and 
+				the firewall does not allow access to ports 8787 and 9797. -->
+			<!-- <port>80</port> <sslport>443</sslport> -->
+			<!-- use 8787/9797 for default http/ws or https/wss connections These 
+				settings are recommended only when running jWebSocket on the same server 
+				beside a WebServer and the firewall grants access to ports 8787 and 9797. -->
+			<!-- <port>8787</port> <sslport>9797</sslport> -->
+			<!-- these domains are accepted by the engine listening on the above mentioned 
+				port -->
+			<domains>
+				<domain>jwebsocket.org</domain>
+				<domain>jwebsocket.com</domain>
+				<domain>localhost</domain>
+			</domains>
+			<!-- default session timeout 1h, max timeout currently 1 hour -->
+			<timeout>0</timeout>
+			<!-- Jetty provides a WebSocket Servlet, set the context path here -->
+			<context>/jWebSocket</context>
+			<!-- Jetty provides a WebSocket Servlet, set the servlet path here -->
+			<servlet>/jWebSocket</servlet>
+			<!-- maximum size of the data packet that the engine will read, if the 
+				frame size is larger than this the connection will be closed. -->
+			<maxframesize>1048840</maxframesize>
+		</engine>
+
+		<!-- the netty engine -->
+		<engine>
+			<name>org.jwebsocket.netty.engines.NettyEngine</name>
+			<id>netty0</id>
+			<jar>jWebSocketNettyEngine-1.0.jar</jar>
+			<port>8787</port>
+			<sslport>9797</sslport>
+			<!-- these domains are accepted by the engine listening on the above mentioned 
+				port -->
+			<domains>
+				<domain>javawebsocket.org</domain>
+				<domain>javawebsocket.com</domain>
+			</domains>
+			<!-- default session timeout 2min, max timeout currently 1 hour -->
+			<timeout>0</timeout>
+			<!-- maximum size of the data packet that the engine will read, if the 
+				frame size is larger than this the connection will be closed. -->
+			<maxframesize>1048840</maxframesize>
+		</engine>
+	</engines>
+
+	<!-- server types to be instantiated for jWebSocket -->
+	<servers>
+		<server>
+			<name>org.jwebsocket.server.TokenServer</name>
+			<id>ts0</id>
+			<jar>jWebSocketTokenServer-1.0.jar</jar>
+			<!-- define the thread pool properties. Thread are spawned when Token's 
+				spawnThread value is true Queue sizes and maximum pool sizes may be traded 
+				off for each other: Using large queues and small pools minimizes CPU usage, 
+				OS resources, and context-switching overhead, but can lead to artificially 
+				low throughput. If tasks frequently block (for example if they are I/O bound), 
+				a system may be able to schedule time for more threads than you otherwise 
+				allow. Use of small queues generally requires larger pool sizes, which keeps 
+				CPUs busier but may encounter unacceptable scheduling overhead, which also 
+				decreases throughput. -->
+			<threadPool>
+				<!-- number of thread that are "waiting" even if the queue is empty -->
+				<corePoolSize>10</corePoolSize>
+				<!-- number maximum of thread that can be running at the same time -->
+				<maximumPoolSize>100</maximumPoolSize>
+				<!-- time before the desctruction of "free" threads (seconds) -->
+				<keepAliveTime>60</keepAliveTime>
+				<!-- size of the blocking queue. Connection will be refused if the queue 
+					is full and the poolsize is equals to the maximumPoolSize -->
+				<blockingQueueSize>1000</blockingQueueSize>
+			</threadPool>
+		</server>
+		<server>
+			<name>org.jwebsocket.server.CustomServer</name>
+			<id>cs0</id>
+			<jar>jWebSocketCustomServer-1.0.jar</jar>
+		</server>
+	</servers>
+
+	<!-- jWebSocket global rights -->
+	<rights>
+		<!-- configuration of system plug-in specific rights -->
+		<right>
+			<ns>org.jwebsocket.plugins.system</ns>
+			<id>broadcast</id>
+			<description>Broadcast message to all other clients.</description>
+		</right>
+		<right>
+			<ns>org.jwebsocket.plugins.system</ns>
+			<id>send</id>
+			<description>Send message to a single target client.</description>
+		</right>
+		<!-- configuration of chat plug-in specific rights -->
+		<right>
+			<ns>net.scaraveos._3dfoo.server.chat</ns>
+			<id>broadcast</id>
+			<description>Broadcast message to all other clients.</description>
+		</right>
+	</rights>
+
+	<!-- jWebSocket roles -->
+	<roles>
+		<role>
+			<id>Guest</id>
+			<description>Anonymous users (not registered)</description>
+			<rights>
+				<right>org.jwebsocket.plugins.system.broadcast</right>
+				<right>org.jwebsocket.plugins.system.send</right>
+				<right>net.scaraveos._3dfoo.server.chat.broadcast</right>
+			</rights>
+		</role>
+	</roles>
+
+	<!-- jWebSocket users -->
+	<users>
+		<user>
+			<loginname>guest</loginname>
+			<firstname>Mr./Mrs.</firstname>
+			<lastname>Guest</lastname>
+			<password>guest</password>
+			<description>jWebSocket Guest</description>
+			<status>1</status>
+			<roles>
+				<role>Guest</role>
+			</roles>
+		</user>
+	</users>
+
+	<!-- plug-ins to be instantiated for jWebSocket -->
+	<plugins>
+		<!-- the system plug-in, do not remove, mandatory for basic WebSocket communication 
+			operations -->
+		<plugin>
+			<name>org.jwebsocket.plugins.system.SystemPlugIn</name>
+			<ns>org.jwebsocket.plugins.system</ns>
+			<id>jws.system</id>
+			<jar>jWebSocketServer-1.0.jar</jar>
+			<!-- plug-in specific settings -->
+			<settings>
+				<!-- specify whether open, close, login, logout events should be broadcasted 
+					per default. To suppress these broadcasts per events turn settings "on" here 
+					and optionally suppress them per client command. -->
+				<setting key="broadcastOpenEvent">false</setting>
+				<setting key="broadcastCloseEvent">false</setting>
+				<setting key="broadcastLoginEvent">false</setting>
+				<setting key="broadcastLogoutEvent">false</setting>
+			</settings>
+			<server-assignments>
+				<server-assignment>ts0</server-assignment>
+			</server-assignments>
+		</plugin>
+
+		<!-- The plug-in for the 3dfoo server game logic -->
+		<plugin>
+			<name>net.scaraveos._3dfoo.server.gamelogic.PlugIn</name>
+			<id>jws._3dfoo.gamelogic</id>
+			<ns>net.scaraveos._3dfoo.server.gamelogic</ns>
+			<jar>jWebSocketServer-1.0.jar</jar>
+			<server-assignments>
+				<server-assignment>ts0</server-assignment>
+			</server-assignments>
+		</plugin>
+	</plugins>
+</jWebSocket>

@@ -1,0 +1,91 @@
+<html>
+	<head>
+		<title>3D &lt;foo&gt;</title>
+		
+		<!-- 3rd party libraries -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+		<script src="/lib/3rd/js/Three/Three.js"></script>
+		<script src="/lib/3rd/js/jWebSocket.js"></script>
+		<script src="/lib/3rd/fonts/helvetiker_regular.typeface.js"></script>
+		<script src="/lib/3rd/js/json2.js"></script>
+		<script src="/lib/3rd/js/ImprovedNoise.js"></script>
+		<script src="/lib/3rd/js/RequestAnimationFrame.js"></script>
+		<script src="/lib/3rd/js/stats.js"></script>
+		
+		<!-- Application custom libraries -->
+		<script src="/lib/js/jwsGameLogicPlugIn.js"></script>
+		<script src="/lib/js/Utils.js"></script>
+		<script src="/lib/js/Pools.js"></script>
+		<script src="/lib/js/Dom.js"></script>
+		<script src="/lib/js/Oauth.js"></script>
+		<script src="/lib/js/Chat.js"></script>
+		<script src="/lib/js/Gfx.js"></script>
+		<script src="/lib/js/Msg.js"></script>
+		<script src="/lib/js/Map.js"></script>
+		
+		<!-- Style sheet -->
+		<link rel="stylesheet" type="text/css" href="/lib/css/style.css" media="screen" />
+	</head>
+	<body>
+		<!-- This is where the rendered goes -->
+		<div id="container"> </div>
+		
+		<!-- Overlay for the WebGL container -->
+		<div id="overlay"> </div>
+		
+		<!-- Start game button -->
+		<div id="start">START</div>
+		
+		<!-- Login area -->
+		<div id="login">
+			<div>LOGIN:</div>
+			<div class="twitter"> </div>
+			<div class="facebook"> </div>
+		</div>
+		
+		<!-- Head up display -->
+		<div id="hud-wrapper" class="ui-wrapper"> </div>
+		<div id="hud" class="ui">
+			<div id="hud-id">ID: 0</div>
+			<div id="hud-health">HEALTH: 0 / 0</div>
+			<div id="hud-points">POINTS: 0</div>
+			<div id="hud-damage">DAMAGE: 0</div>
+			<div id="hud-locks">LOCKS: 0</div>
+			<div id="hud-friends">FRIENDS: 0</div>
+			<div id="hud-players">PLAYERS: 0</div>
+			<div id="hud-latency">LATENCY: 0ms</div>
+		</div>
+		
+		<!-- Map area -->
+		<div id="map-wrapper" class="ui-wrapper"> </div>
+		<div id="map" class="ui"> </div>
+		
+		<!-- Chat area -->
+		<div id="chat-wrapper" class="ui-wrapper"> </div>
+		<ul id="chat" class="ui"><input type="text" id="chat-text" /></ul>
+		
+		<!-- Logging area -->
+		<div id="logger-wrapper" class="ui-wrapper"> </div>
+		<ul id="logger" class="ui"> </ul>
+		
+		<script type="text/javascript">
+			// Instantiate core objects.
+			var utils = new _Utils();
+			var pools = new _Pools();
+			var dom = new _Dom();
+			var oauth = new _Oauth();
+			var chat = new _Chat();
+			var gfx = new _Gfx();
+			var msg = new _Msg();
+			var map = new _Map();
+
+			$(document).ready(function() {	
+				dom.init();
+				oauth.router();
+			});
+			$(window).unload(function() {
+				msg.shutdown();
+			});
+		</script>
+	</body>
+</html>
