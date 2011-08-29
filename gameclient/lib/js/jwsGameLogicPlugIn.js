@@ -26,7 +26,7 @@ jws.GameLogicPlugIn = {
 				ns: jws.GameLogicPlugIn.NS,
 				type: "unregister",
 				message: {
-					// TODO: is this working ok?
+					// TODO: is this needed?
 					id: pools.player.id
 				}
 			});
@@ -37,7 +37,6 @@ jws.GameLogicPlugIn = {
 		}
 		return lRes;
 	},
-	
 
 	pong: function() {
 		var lRes = this.createDefaultResult();

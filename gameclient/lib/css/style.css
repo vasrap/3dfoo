@@ -3,10 +3,13 @@ body {
 	padding: 0;
 	background: black;
 }
-
 ul, li {
 	margin: 0;
 	padding: 0;
+}
+
+.clear {
+	clear: both;
 }
 
 #container {
@@ -14,117 +17,205 @@ ul, li {
 	left: -1px;
 	background: url('/lib/img/bg.jpg') no-repeat;
 }
-
 #overlay {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
+	z-index: 1;
+	background: black;
+	opacity: 0.6;
 }
 
-.ui-wrapper, .ui {
+.box {
+	background: #3f3c3d;
+	color: white;
+	font-family: arial;
+	float: left;
+	box-shadow: 2px 1px 0 0 #222;
+	text-align: center;
+	vertical-align: middle;
+	text-shadow: 2px 2px 2px #000;
+}
+
+#hud {
+	height: 132px;
+	width: 955px;
+	padding: 10px;
+	background: #777576;
 	position: absolute;
-	top: 0;
-	left: 0;
-	background: white;
-	opacity: 0.1;
+	bottom: 5px;
 }
 
-.ui {
-	background: transparent;
-	opacity: 1;
-	overflow: hidden;
-	font-family: courier;
+#map-wrapper, 
+#char-wrapper, 
+#addon-wrapper {
+	float: left;
 }
 
-#fb-root {
-	width: 0;
-	height: 0;
+#map-wrapper {
+	width: 211px;
+	height: 131px;
 }
-
-#map-wrapper, #map {
-	width: 300px;
-	height: 200px;
-	bottom: 0; top: inherit;
+#map {
+	width: 189px;
+	height: 131px;
+	background: black;
+	position: relative;
+	float: left;
+}
+#map-togglers {
+	width: 16px;
+	height: 130px;
+	float: left;
+	margin: 0 0 0 5px;
+}
+#map-togglers div {
+	width: 100%;
+	height: 17%;
+	margin: 0 0 5px 0;
+	cursor: pointer;
+	box-shadow: 1px 1px 0 0 #222;
 }
 #map .map-dot {
 	position: absolute;
 	width: 5px;
 	height: 5px;
 }
+#map-togglers .map-type-me, 
 #map .map-dot.map-type-me {
 	background-color: green;
 }
+#map-togglers .map-type-ally, 
 #map .map-dot.map-type-ally {
 	background-color: blue;
 }
+#map-togglers .map-type-foe, 
 #map .map-dot.map-type-foe {
 	background-color: red;
 }
+#map-togglers .map-type-weak, 
 #map .map-dot.map-type-weak {
-	background-color: black;
+	background-color: orange;
+}
+#map-togglers .map-type-ghost, 
+#map .map-dot.map-type-ghost {
+	background-color: white;
 }
 
-#chat-wrapper, #chat {
-	width: 280px;
-	padding: 0 0 0 20px;
-	right: 0; left: inherit;
+#char-wrapper {
+	width: 513px;
+	height: 131px;
+	padding: 0 10px;
 }
-#chat {
-	font-size: 12px;
-	padding: 2px 0 0 20px;
+#char-wrapper .box .caption {
+	font-size: 14px;
+	position: relative;
+	top: 23px;
+	text-shadow: 2px 2px 2px #000;
 }
-#chat-text {
+#char-portrait {
+	width: 100px;
+	height: 100px;
+	background: white;
+}
+#char-life {
+	width: 403px;
+	height: 40px;
+	margin: 0 0 0 10px;
+	position: relative;
+}
+#char-life .value {
+	width: 100%;
+	height: 100%;
+	padding: 10px 0 0 0;
 	position: absolute;
-	bottom: 25px;
-	right: 10px;
-	width: 280px;
-}
-
-#logger-wrapper, #logger {
-	width: 300px;
-	height: 128px;
-}
-#logger {
-	font-size: 12px;
-	padding: 2px 0 0 20px;
-	height: 126px;
-}
-
-#hud-wrapper, #hud {
-	padding: 2px 0 0 3px;
-	width: 297px;
-	height: 161px;
-	top: 130px;
-}
-#hud {
+	top: 0;
+	left: 0;
 	font-size: 16px;
+	font-weight: bold;
+}
+#char-life-bar {
+	width: 70%;
+	height: 100%;
+	background: red;
+	box-shadow: 2px 1px 0 0 #222;
+}
+#char-points {
+	width: 149px;
+	height: 35px;
+	margin: 10px 0 0 10px;
+	padding: 15px 0 0 0;
+	font-size: 18px;
+	font-weight: bold;
+}
+#char-power, #char-shield {
+	width: 117px;
+	height: 35px;
+	margin: 10px 0 0 10px;
+	padding: 15px 0 0 0;
+	font-size: 18px;
+	font-weight: bold;
 }
 
-#start, #login {
-	background: yellow;
-	color: grey;
+#addon-wrapper {
+	font-size: 12px;
+	width: 211px;
+	height: 40px;
+	padding: 91px 0 0 0;
+	background: #5A004A;
+}
+
+.button {
+	background: #777576;
+	color: white;
 	position: absolute;
 	display: none;
-	font-family: courier;
-	font-size: 26px;
+	font-family: arial;
+	font-size: 24px;
 	letter-spacing: 3px;
 	padding: 10px 20px;
 	border-radius: 7px;
 	cursor: pointer;
 	font-weight: bold;
 }
-#start:hover {
-	color: green;
+
+#login, #start {
+	z-index: 2;
 }
 #login .twitter, #login .facebook {
 	width: 50px;
 	height: 50px;
 	background: url('/lib/img/login-twitter.png') no-repeat;
 	float: left;
-	margin: 10px 10px 0 0;
+}
+#login .twitter {
+	margin-right: 10px;
 }
 #login .facebook {
 	background: url('/lib/img/login-facebook.png') no-repeat;
+}
+
+#logger {
+	z-index: 2;
+	font-family: arial;
+	font-size: 12px;
+	color: white;
+	background: purple;
+	padding: 0 10px 5px 10px;
+	width: 955px;
+	height: 0px;
+	overflow: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-shadow: 2px 2px 0 0 #222;
+	border-bottom: 2px solid black;
+}
+
+#fps-stats {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

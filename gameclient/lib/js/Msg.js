@@ -4,7 +4,7 @@
 function _Msg() {
 	var self = this;
 
-	// Connection flag.
+	// Connection established flag.
 	this.connected = false;
 
 	// WebSocket connection.
@@ -13,14 +13,15 @@ function _Msg() {
 	// While false we can't talk to the server.
 	this.canNotify = false;
 	
-	// Messaging interval every second,
-	// i.e. how many times a second.
-	this.interval = 20;
-	
 	// Ping related.
 	this.latency = null;
 	this.lastPing = null;
 	
+	/**
+	 * Calculates client - server latency.
+	 *
+	 * TODO: this has to be rendering independent.
+	 */
 	this.ping = function() {
 		self.lastPing = new Date().getTime();
 		
@@ -28,7 +29,7 @@ function _Msg() {
 	};
 	
 	/**
-	 * Initiates player on server.
+	 * Notifies server that player joined the game.
 	 */
 	this.insertPlayer = function() {
 		self.connection.insertPlayer(
@@ -37,7 +38,7 @@ function _Msg() {
 	};
 
 	/**
-	 * Notifies the server with the new camera position.
+	 * Notifies server with the new player position and rotation.
 	 */
 	this.updatePlayer = function() {
 		self.connection.updatePlayer({
@@ -52,7 +53,7 @@ function _Msg() {
 	};
 	
 	/**
-	 * Notifies the server with the user's chat message.
+	 * Notifies server with the player's chat message.
 	 */
 	this.updateChat = function(message) {
 		self.connection.updateChat({
@@ -67,29 +68,26 @@ function _Msg() {
 		try {
 			dom.log('Connecting to server...');
 			
+			// Start jWebSocket connection.
 			self.connection = new jws.jWebSocketJSONClient();
-
-			var lURL = "ws://3dfoo.net:8787/";
+			var url = "ws://3dfoo.net:8787/";
 			
 			// Initializes a WebSocket connection.
-			self.connection.logon(lURL, "guest", "guest", {
-				/**
-				 * On WebSocket open, run the init() method to kickstart the -
-				 * 3D environment.
-				 */
+			// TODO: figure out user related stuff server side.
+			self.connection.logon(url, "guest", "guest", {
 				OnOpen: function(e) {
 					self.connected = true;
 			
 					self.connection.startKeepAlive({interval: 30000});
 					self.connection.registerStream();
+
+					$('#start').show();
 					
 					dom.log('Connected to server');
-
-					self.insertPlayer();
 				},
 
 				/**
-				 * On message receipt update pools or chat.
+				 * Message receipt rooter.
 				 */
 				OnMessage: function(e) {
 					var data = JSON.parse(e.data);
@@ -99,25 +97,36 @@ function _Msg() {
 
 						gfx.updateWorld();
 						map.update();
-						dom.updateStats();
+						dom.updateCharacterInfo();
 					} else if (data.type == 'player') {
 						pools.updatePlayer(data.message);
 						
-						dom.updateStats();
+						dom.updateCharacterInfo();
 						self.ping();
 					} else if (data.type == 'defs') {
 						pools.updateDefs(data.message);
 						
-						if (!gfx.started) {
+						if (!gfx.engineStarted) {
+							gfx.engineStarted = true;
+
+							// Update player details.
 							pools.updateMe(data.message);
+							
+							// Start pinging the server.
 							self.ping();
-							chat.init();
+
+							// TODO: activate this.
+							// chat.init();
+							
+							// Start 3D rendering and set starting position.
 							gfx.init(data.message.position);
 						}
-						
-						dom.updateStats();
 					} else if (data.type == 'chat') {
-						chat.updateFeed(data.message);
+						// TODO: activate this.
+						// chat.updateFeed(data.message);
+						
+					// 'ping' action is used by the jWebSocket internals -
+					// so we use 'pong'.
 					} else if (data.type == 'pong') {
 						self.latency = new Date().getTime() - self.lastPing;
 					}
@@ -139,6 +148,7 @@ function _Msg() {
 	this.shutdown = function() {
 		dom.log('Disconnecting from server...');
 		
+		// If connections exists unregisted it and close it.
 		if (self.connection !== null) {
 			self.connection.unregisterStream();
 			self.connection.stopKeepAlive();

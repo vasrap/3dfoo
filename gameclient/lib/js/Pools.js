@@ -13,6 +13,7 @@ function _Pools() {
 	this.player = {
 		id: 0,
 		name: '',
+		picture: '',
 		health: 0,
 		topHealth: 0,
 		points: 0,
@@ -31,15 +32,15 @@ function _Pools() {
 		position: []
 	};
 	
-	this.allyCount = 0;
-	this.playerCount = 0;
-	this.lockCount = 0;
-	this.lastDamage = 0;
 	this.lastHealth = null;
 
 	this.updateMe = function(message) {
 		self.player.id = message.me.id;
 		self.player.name = message.me.name;
+		self.player.picture = message.me.picture;
+
+		// TODO: this has to go in Dom.js
+		$('#char-portrait img').attr('src', self.player.picture);
 	};
 	
 	this.updatePlayer = function(message) {
@@ -49,16 +50,6 @@ function _Pools() {
 		self.player.addons = message.addons;
 		self.player.damage = message.damage;
 		self.player.locks = message.locks;
-		
-		self.lockCount = 0;
-		for (var lid in self.player.locks) {
-			self.lockCount++;
-		}
-		
-		self.lastDamage = 0;
-		for (var did in self.player.damage) {
-			self.lastDamage = self.player.damage[did].toFixed(2);
-		}
 		
 		if (self.lastHealth != self.player.health && self.lastHealth !== null) {
 			if (self.player.health === 0) {
@@ -81,14 +72,5 @@ function _Pools() {
 		self.defs.players = message.players;
 		self.defs.addons = message.addons;
 		self.defs.position = message.position;
-		
-		self.allyCount = self.playerCount = 0;
-		for(var pid in self.defs.players) {
-			if (self.defs.players[pid].type == 'ally') {
-				self.allyCount++;
-			}
-		
-			self.playerCount++;
-		}
 	};
 }

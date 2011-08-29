@@ -81,8 +81,6 @@ class oauth(object):
 			self.session.oauth_network = 'facebook'
 			self.session.oauth_token = access_token['access_token']
 			self.session.oauth_token_secret = 'n/a'
-			self.session.network_user_id = 'n/a'
-			self.session.network_user_name = 'n/a'
 
 			return {'error': False}
 		else:

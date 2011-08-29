@@ -4,13 +4,17 @@
 function _Oauth() {
 	var self = this;
 
+	// Count after 3 then stop trying to access the rest service.
 	this.retryCount = 0;
+
+	// Generate oauth url method.
 	this.url = function(network) {
 		if (network === undefined) return 0;
 
 		return '/rest/service.py/oauth-' + network + '/';
 	};
 
+	// Figure out what to do regarding the oauth process.
 	this.router = function() {
 		var urlParams = $(location).attr('search');
 		
@@ -23,12 +27,13 @@ function _Oauth() {
 		}
 	};
 
+	// Defines the client side oauth process.
 	this.get = function(userAction, network) {
 		if (userAction === undefined) return 0;
 
 		var urlParams = $(location).attr('search');
 
-		// If we came back from authorize url
+		// If we came back from authorize url.
 		if (
 			// Twitter
 			(urlParams.indexOf('oauth=twitter') && 
@@ -47,15 +52,15 @@ function _Oauth() {
 					if (self.retryCount <= 3) {
 						self.get();
 					} else {
-						dom.userError('Couldn\t contact Twitter. Please, try again later.');
+						dom.userError('Couldn\'t contact Twitter. Please, try again later.');
 					}
 				}
 			}, 'json');
 
-		// If user just visited 3dfoo or finished with authentication
+		// If user just visited 3dfoo or if we have oauth data in session.
 		} else {
 			$.get(self.url(network) + '9', function(data) {
-				// If oauth details in session
+				// If oauth details in session.
 				if (!data.error) {
 					pools.oauth = {
 						oauthNetwork: data.oauth_network,
@@ -63,12 +68,15 @@ function _Oauth() {
 						oauthTokenSecret: data.oauth_token_secret
 					};
 
+					// Now that we have the oauth data, we can start -
+					// the messaging instance.
 					msg.init();
 
-				// If oauth details not found
+				// If oauth details not found.
 				} else {
-					// If user triggered a login action
+					// If user triggered a login action.
 					if (userAction) {
+						// Ask the rest service what's the authorize url.
 						$.get(self.url(network) + '1', function(data) {
 							self.retryCount++;
 
@@ -78,7 +86,7 @@ function _Oauth() {
 								if (self.retryCount <= 3) {
 									self.get();
 								} else {
-									dom.userError('Couldn\t contact Twitter. Please, try again later.');
+									dom.userError('Couldn\t contact oauth service. Please, try again later.');
 								}
 							}
 						}, 'json');

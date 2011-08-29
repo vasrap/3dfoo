@@ -29,12 +29,6 @@ public class PlugIn extends TokenPlugIn {
 		}
 		
 		this.setNamespace(NS_GAMELOGIC);
-		
-		this.gameEngine = new Engine();
-	}
-	
-	public Engine getGameEngine() {
-		return this.gameEngine;
 	}
 	
 	@Override
@@ -157,6 +151,7 @@ public class PlugIn extends TokenPlugIn {
 	
 	@Override
 	public void engineStarted(WebSocketEngine engine) {
+		this.gameEngine = new Engine(this.getServer());
 		this.startStream();
 	}
 

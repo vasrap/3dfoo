@@ -80,8 +80,6 @@ class oauth(object):
 			self.session.oauth_network = 'twitter'
 			self.session.oauth_token = access_token['oauth_token']
 			self.session.oauth_token_secret = access_token['oauth_token_secret']
-			self.session.network_user_id = access_token['user_id']
-			self.session.network_user_name = access_token['screen_name']
 
 			return {'error': False}
 		else:

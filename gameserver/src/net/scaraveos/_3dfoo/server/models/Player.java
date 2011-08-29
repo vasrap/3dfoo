@@ -179,6 +179,7 @@ public class Player {
 		if (me) {
 			updateMap.put("id", this.id);
 			updateMap.put("name", this.name);
+			updateMap.put("picture", this.picture);
 		} else {
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
 

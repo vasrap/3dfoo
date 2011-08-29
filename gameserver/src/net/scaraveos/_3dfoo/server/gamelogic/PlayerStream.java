@@ -77,7 +77,7 @@ public class PlayerStream extends TokenStream {
 			
 			while (isRunning) {
 				try {
-					Thread.sleep(750);
+					Thread.sleep(1000);
 
 					FastMap<String, Token> playerTokens = gameEngine.getPlayerTokens();
 					

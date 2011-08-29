@@ -52,12 +52,15 @@ public class Engine {
 	// Other
 	private Long healthTimer = null;
 	
+	// Server
+	private TokenServer tokenServer = null;
+	
 	/**
 	 * Constructor
 	 * 
 	 * @param stream 
 	 */
-	public Engine() {
+	public Engine(TokenServer tokenServer) {
 		this.addonDefs = Addon.buildDefMapFromXml("conf/addon-definitions.xml");
 		this.addons = new FastMap<String, FastMap<String, Double>>();
 		this.players = new FastMap<String, Player>();
@@ -66,6 +69,8 @@ public class Engine {
 		this.beams = new FastMap<String, String>();
 		
 		this.healthTimer = new Date().getTime();
+		
+		this.tokenServer = tokenServer;
 	}
 	
 	public String getPlayerIdByConnectorId(String connectorId) {
@@ -157,13 +162,7 @@ public class Engine {
 		
 		this.connectorToPlayer.put(connector.getId(), id);
 		
-		for (Player eachPlayer : this.players.values()) {
-			if (eachPlayer.isOnline()) {
-				tokenServer.sendToken(
-					tokenServer.getConnector(eachPlayer.getConnectorId()), 
-					this.getDefsToken(eachPlayer.getId()));
-			}
-		}
+		this.sendDefs();
 	}
 	
 	/**
@@ -186,13 +185,7 @@ public class Engine {
 			this.playerUpdates.remove(id);
 			this.connectorToPlayer.remove(connectorId);
 			
-			for (Player eachPlayer : this.players.values()) {
-				if (eachPlayer.isOnline()) {
-					tokenServer.sendToken(
-						tokenServer.getConnector(eachPlayer.getConnectorId()), 
-						this.getDefsToken(eachPlayer.getId()));
-				}
-			}
+			this.sendDefs();
 		}
 	}
 	
@@ -235,6 +228,8 @@ public class Engine {
 					
 					// TODO: remove lock from the player that has locked the clickedPlayer
 					player.removeLock(clickId);
+
+					this.sendDefs();
 				}
 
 				this.players.put(player.getId(), player);
@@ -291,7 +286,9 @@ public class Engine {
 			if (player.isOnline()) {
 				FastMap<String, String> playerDefMap = player.toDefMap();
 				
-				if (this.players.get(id).getFriends().indexOf(player.getId()) != -1) {
+				if (player.getHealth() == 0) {
+					playerDefMap.put("type", "ghost");
+				} else if (this.players.get(id).getFriends().indexOf(player.getId()) != -1) {
 					playerDefMap.put("type", "ally");
 				} else {
 					String id1 = id;
@@ -402,6 +399,7 @@ public class Engine {
 			this.healthTimer = timeNow;
 		}
 		
+		Boolean healthRegenerated = false;
 		for (Player player : this.players.values()) {
 			if (player.isOnline()) {
 				Token playerToken = 
@@ -416,9 +414,12 @@ public class Engine {
 			}
 			
 			if (updateHealth && player.getHealth() <= 85) {
+				healthRegenerated = true;
 				player.updateHealth(1.0, 15.0);
 			}
 		}
+		
+		if (healthRegenerated) this.sendDefs();
 		
 		return playerTokenMap;
 	}
@@ -444,5 +445,15 @@ public class Engine {
 		defsToken.setMap("message", defsMap);
 	
 		return defsToken;
+	}
+	
+	public void sendDefs() {
+		for (Player eachPlayer : this.players.values()) {
+			if (eachPlayer.isOnline()) {
+				this.tokenServer.sendToken(
+					this.tokenServer.getConnector(eachPlayer.getConnectorId()), 
+					this.getDefsToken(eachPlayer.getId()));
+			}
+		}
 	}
 }

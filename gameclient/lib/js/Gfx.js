@@ -20,18 +20,18 @@ function _Gfx() {
 	
 	// Starting position.
 	// [x, y]
-	this.position = null;
+	this.position = [0, 0];
 	
-	// Active user objects pool.
+	// Active user 3D objects.
 	this.users = [];
 	
-	// Active beam objects pool.
+	// Active beam 3D objects.
 	this.beams = [];
 	
-	// Flag that indicates if animation has started.
-	this.started = false;
+	// Flag indicating if animation has started.
+	this.engineStarted = false;
 	
-	// Flag that indicates if user clicked the start button.
+	// Flag indicating if user clicked the start button.
 	this.startClicked = false;
 
 	// Mouse handling variables.
@@ -41,11 +41,11 @@ function _Gfx() {
 	// The clicked player id.
 	this.clickId = null;
 	
-	// Frames per second related.
+	// Frames per second.
 	this.fps = null;
 
 	/**
-	 * Toggles camera freeze.
+	 * Toggles camera activity.
 	 */
 	this.toggleActiveCamera = function() {
 		if (self.startClicked) {
@@ -60,7 +60,9 @@ function _Gfx() {
 	};
 	
 	/*
-	 * Assigns methods to the mouse events for the container element.
+	 * Assigns methods to the mouse events for the overlay element.
+	 * Mostly used for mouse collision detection with other players -
+	 * and managing shooting.
 	 */
 	this.initDomHandlers = function() {
 		document.getElementById('overlay').onmousemove = function(e) {
@@ -83,6 +85,7 @@ function _Gfx() {
 		};
 	};
 	
+	// What to do when health is changing.
 	this.damageEffect = function() {
 		$('#overlay').css('background', '#880000');
 		$('#overlay').animate({
@@ -93,12 +96,23 @@ function _Gfx() {
 		});
 	};
 	
+	// What to do when health is 0.
 	this.deadEffect = function() {
 		$('#overlay').css('background', '#880000');
-		$('#overlay').css('opacity', 0.7);
+		$('#overlay').css('opacity', 0.8);
 		self.toggleActiveCamera();
 	};
 	
+	/**
+	 * Updates 3D objects.
+	 */
+	this.updateWorld = function() {
+		self.deletePlayers();
+		self.insertPlayers();
+		self.updatePlayers();
+		self.updateBeams();
+	};
+
 	/**
 	 * Initializes new player objects.
 	 */
@@ -106,7 +120,8 @@ function _Gfx() {
 		for (var id in pools.defs.players) {
 			if (!self.users[id] && id != pools.player.id) {
 				var data = pools.defs.players[id];
-
+	
+				// Figure out how to color players.
 				var playerType = data.type;
 				var ballColor = null;
 				if (playerType == 'foe') {
@@ -115,32 +130,34 @@ function _Gfx() {
 					ballColor = 0x000066;
 				} else if (playerType == 'weak') {
 					ballColor = 0x000000;
+				} else if (playerType =='ghost') {
+					ballColor = 0xFFFFFF;
 				}
 
+				// Initialize player array.
 				self.users[id] = [];
 
-				// Create the user ball.
+				// Create the user ball 3D object.
 				self.users[id].ball = 
 					new THREE.Mesh(
 						new THREE.SphereGeometry(5, 8, 8),
 						new THREE.MeshBasicMaterial({color: ballColor}));
-
 				self.users[id].ball.position.x = 0;
 				self.users[id].ball.position.y = 0;
 				self.users[id].ball.position.z = 0;
 
-				// User specifics.
+				// Add player type and id properties for future reference.
 				self.users[id].ball.user = {
 					type: playerType,
 					id: id
 				};
 
-				// Set collidesion detection for users.
+				// Set collidesion detection for players.
 				var sc = new THREE.SphereCollider(self.users[id].ball.position, 5);
 				sc.mesh = self.users[id].ball;
 				THREE.Collisions.colliders.push(sc);
 
-				dom.log('New user connected');
+				dom.log('New user connected.');
 
 				// Create the user id text.
 				self.users[id].userIdText = 
@@ -150,36 +167,48 @@ function _Gfx() {
 				self.users[id].userPic = 
 					self.getUserPic(data.picture);
 
-				// Add ball and user id text to scene.
+				// Assign text and picture as child 3D objects.
 				self.users[id].ball.addChild(self.users[id].userIdText);
 				self.users[id].ball.addChild(self.users[id].userPic);
+				
+				// Add player 3D object to the scene.
 				self.scene.addChild(self.users[id].ball);
 			}
 		}
 	};
 	
+	/**
+	 * Removes obsolete player 3D objects.
+	 */
 	this.deletePlayers = function() {
 		for (var id in self.users) {
 			if (!pools.defs.players[id]) {
-				dom.log('User disconnected');
+				dom.log('User disconnected.');
 
+				// Remove 3D object from the scene.
 				self.scene.removeChildRecurse(self.users[id].ball);
 				delete self.users[id];
 
-				$('#map-' + id).remove();
+				// Remove player from the map.
+				map.remove(id);
 			}
 		}
 	};
 	
+	/**
+	 * Update active player information.
+	 */
 	this.updatePlayers = function() {
 		for (var pid in pools.players) {
 			if (self.users[pid]) {
 				var data = pools.players[pid];
 
+				// Update position.
 				self.users[pid].ball.position.x = data.position.x;
 				self.users[pid].ball.position.y = data.position.y;
 				self.users[pid].ball.position.z = data.position.z;
 
+				// Update rotation.
 				self.users[pid].userIdText.rotation.y = (-1 * data.rotation.theta) + 1.57;
 
 				self.users[pid].userPic.position.x = 
@@ -191,21 +220,18 @@ function _Gfx() {
 				self.users[pid].userPic.rotation.y = 
 					(-1 * data.rotation.theta) + 1.57;
 				
-				if (data.health === 0) {
-					self.users[pid].ball.user.type = 'dead';
-				} else {
-					self.users[pid].ball.user.type = 
-						pools.defs.players[pid].type;
-				}
+				// Update player type (ie. weak, ghost, etc).
+				self.users[pid].ball.user.type = 
+					pools.defs.players[pid].type;
 			}
 		}
 	};
 	
 	/**
-	 * Keeps beams in sync
+	 * Update the beam 3D objects.
 	 */
 	this.updateBeams = function() {
-		// First remove in-active beams.
+		// Removes in-active beams.
 		for (var bid in self.beams) {
 			if (!pools.beams[bid]) {
 				self.scene.removeChild(self.beams[bid]);
@@ -213,10 +239,11 @@ function _Gfx() {
 			}
 		}
 		
-		// Then insert any new.
+		// Inserts new beams.
 		// Already added beams are automatically managed since their geometry -
-		//	is a reference to the ball objects.
+		// is a reference to the player 3D objects.
 		for (var ppid in pools.beams) {
+			// If this is a new 3D beam object
 			if (!self.beams[ppid] && ppid != pools.player.id && pools.beams[ppid] != pools.player.id) {
 				try {
 					var beamMaterial = new THREE.LineBasicMaterial({color: 0xFF0000});
@@ -229,23 +256,17 @@ function _Gfx() {
 					self.beams[ppid] = beam;
 
 					self.scene.addChild(beam);
+				// TODO: is try / catch needed here?
 				} catch (e) {
 					
 				}
-			} else if (self.beams[ppid]) {	
+
+			// If the 3D beam object already exists.
+			} else if (self.beams[ppid]) {
+				// Update vertices on render.	
 				self.beams[ppid].geometry.__dirtyVertices = true;
 			}
 		}
-	};
-
-	/**
-	 * Updates world.
-	 */
-	this.updateWorld = function() {
-		self.deletePlayers();
-		self.insertPlayers();
-		self.updatePlayers();
-		self.updateBeams();
 	};
 
 	/**
@@ -282,6 +303,7 @@ function _Gfx() {
 	 * Initializes THREE renderer and starts the rendering process.
 	 */
 	this.init = function(position) {
+		// Try to initialize 3D the renderer.
 		try {
 			dom.log('Initializing 3D environment...');
 
@@ -303,24 +325,21 @@ function _Gfx() {
 		self.rayLand.origin.y = 10000;
 		self.rayLand.direction = new THREE.Vector3(0, -1, 0);
 
-		// Variables used for user collision detection.
+		// Variables used for player collision detection.
 		self.projector = new THREE.Projector();
 		
 		// Load camera, scene, and static objects.
 		var loadScene = self.initScene();
 
-		// Assign generated objects to class properties.
+		// Assign generated 3D objects to class properties.
 		self.scene = loadScene.scene;
 		self.camera = loadScene.camera;
 
 		// Initialize mouse handlers.
 		self.initDomHandlers();
 
+		// Attach the 3D rendered to the DOM element.
 		document.getElementById('container').appendChild(self.renderer.domElement);
-
-		$('#start').show();
-
-		msg.canNotify = true;
 
 		dom.log('Initialized 3D environment');
 		
@@ -328,24 +347,25 @@ function _Gfx() {
 		self.fps = new Stats();
 		self.fps.domElement.id = 'fps-stats';
 		self.fps.domElement.style.position = 'absolute';
-		self.fps.domElement.style.top = '247px';
-		self.fps.domElement.style.left = '221px';
 		self.fps.domElement.style.zIndex = 100;
 		document.getElementById('container').appendChild(self.fps.domElement);
 
+		// Trigger the rendering process.
 		self.animate();
-		
-		self.started = true;
+
+		// Activate camera.
+		gfx.toggleActiveCamera();
 	};
 
 	/**
-	 * Instantiates initial scene, camera and objects.
+	 * Instantiates initial scene, camera and 3D objects.
 	 */
 	this.initScene = function() {
 		// Daylight modifier.
 		var d = new Date();
 		var hour = d.getHours();
-		if (hour <= 12) hour = 13 - hour; else hour = hour - 11;hour /= 2;
+		// TODO: make this nicer.
+		if (hour <= 12) hour = 13 - hour; else hour = hour - 11; hour /= 2;
 
 		// Scene and camera instantiation.
 		var result = {
@@ -369,13 +389,13 @@ function _Gfx() {
 		sunPointLight.position.y = 2200;
 		result.scene.addChild(sunPointLight);
 
-		// Sun object instantiation.
+		// Sun 3D object instantiation.
 		var sunMaterial = new THREE.MeshBasicMaterial({color: 0xFFD700});
 		var sun = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 32), sunMaterial);
 		sun.position.y = 2200;
 		result.scene.addChild(sun);
 
-		// Sky object instantiation.
+		// Sky 3D object instantiation.
 		var skyGeometry = new THREE.SphereGeometry(16000, 32, 32);
 		var skyMaterial = new THREE.MeshBasicMaterial({color: 0x0099BB / hour});
 		var sky = new THREE.Mesh(skyGeometry, skyMaterial);
@@ -392,12 +412,12 @@ function _Gfx() {
 		}
 		// Land material.
 		var landMaterial = new THREE.MeshPhongMaterial({ambient: 0x009900, color: 0xff0000, shininess: 30, shading: THREE.FlatShading});
-		// Land object instantiation.
+		// Land 3D object instantiation.
 		var land = new THREE.Mesh(landGeometry, landMaterial);
 		land.rotation.x = - Math.PI / 2;
 		result.scene.addChild(land);
 
-		// Creates a ball grid on the land object.
+		// Creates a grid out of 3D spheres on top of the land object.
 		for (var k = 0; k < land.geometry.vertices.length; k = k + 10) {
 			var ball = new THREE.Mesh(
 				new THREE.SphereGeometry(15, 8, 8),
@@ -410,18 +430,17 @@ function _Gfx() {
 			result.scene.addObject(ball);
 		}	
 
+		// Add land for collision detection.
 		THREE.Collisions.colliders.push(THREE.CollisionUtils.MeshColliderWBox(land));
 
 		return result;
 	};
 
 	/**
-	 * Animation method.
-	 * 
-	 * Currently puts camera above the land object at all times.
+	 * Animation.
 	 */
 	this.animate = function() {
-		// When self frame is rendered call method animate again.
+		// When this frame is done rendering call animate again.
 		requestAnimationFrame(self.animate);
         
 		self.rayLand.origin.x = self.camera.position.x;
@@ -429,7 +448,7 @@ function _Gfx() {
 
 		var lastPos = self.camera.position.clone();
 
-		// Get the camera position above the land object.
+		// Get the camera above the land object at all times.
 		var c = THREE.Collisions.rayCastNearest(self.rayLand);
 		if (c) {
 			lastPos = self.rayLand.origin.clone().subSelf(new THREE.Vector3(0, c.distance - 5, 0));
@@ -443,11 +462,14 @@ function _Gfx() {
 				self.users[k].ball.materials[0].color.setHex(0x660000);
 			} else if (self.users[k].ball.user.type == 'ally') {
 				self.users[k].ball.materials[0].color.setHex(0x000066);
-			} else if (self.users[k].ball.user.type == 'dead') {
+			} else if (self.users[k].ball.user.type == 'weak') {
+				self.users[k].ball.materials[0].color.setHex(0x000000);
+			} else if (self.users[k].ball.user.type == 'ghost') {
 				self.users[k].ball.materials[0].color.setHex(0xFFFFFF);
 			}
 		}
 		
+		// Figures out mouse - player collisions and shooting.
 		self.clickId = null;
 		var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 0.5);
 		self.projector.unprojectVector(vector, self.camera);
@@ -474,26 +496,23 @@ function _Gfx() {
 		
 		self.camera.position = lastPos.clone();
 
-		// Cannot notify if an other notification is in progress.
+		// Cannot notify if an other notification is in progress or -
+		// if user hasn't clicked start yet.
 		if (msg.canNotify) {
 			msg.canNotify = false;
-
-			//setTimeout(msg.updatePlayer(), 1000 / msg.interval);
+			
 			msg.updatePlayer();
 		}
 
-		// Renders our scene.
+		// Renders the scene.
 		self.render();
 		
-		// Update fps stats
+		// Updates fps stats.
 		self.fps.update();
 	};
 
 	/**
-	 * Render method.
-	 * 
-	 * Calls the THREE render method and notifies server of the -
-	 * camera position.
+	 * Rendering.
 	 */
 	this.render = function() {
 		self.renderer.render(self.scene, self.camera);

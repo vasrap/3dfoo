@@ -34,39 +34,57 @@
 		<div id="overlay"> </div>
 		
 		<!-- Start game button -->
-		<div id="start">START</div>
+		<div id="start" class="button">START</div>
 		
-		<!-- Login area -->
-		<div id="login">
-			<div>LOGIN:</div>
+		<!-- Login buttons -->
+		<div id="login" class="button">
 			<div class="twitter"> </div>
 			<div class="facebook"> </div>
 		</div>
-		
-		<!-- Head up display -->
-		<div id="hud-wrapper" class="ui-wrapper"> </div>
-		<div id="hud" class="ui">
-			<div id="hud-id">ID: 0</div>
-			<div id="hud-health">HEALTH: 0 / 0</div>
-			<div id="hud-points">POINTS: 0</div>
-			<div id="hud-damage">DAMAGE: 0</div>
-			<div id="hud-locks">LOCKS: 0</div>
-			<div id="hud-friends">FRIENDS: 0</div>
-			<div id="hud-players">PLAYERS: 0</div>
-			<div id="hud-latency">LATENCY: 0ms</div>
+
+		<!-- HUD container -->
+		<div id="hud">
+			<div id="map-wrapper">
+				<div id="map"> </div>
+				<div id="map-togglers">
+					<div class="map-type-me" title="That's You!"> </div>
+					<div class="map-type-ally" title="Allies (Your friends on Twitter or Facebook)"> </div>
+					<div class="map-type-foe" title="Foes (Players that are not Allies)"> </div>
+					<div class="map-type-weak" title="Weaks (Foes that have much less points and life than you do. You can't shoot them but they can!)"> </div>
+					<div class="map-type-ghost" title="Ghosts (Ehm. Dead players. Beware though, not for long!)"> </div>
+				</div>
+			</div>
+			<div id="char-wrapper">
+				<div id="char-portrait" class="box">
+					<img src="https://si0.twimg.com/profile_images/1307761958/eightbit-d27169fb-dd80-4080-b0c9-3348f44ba0b0.png" width="100" height="100" />
+				</div>
+				<div id="char-life" class="box">
+					<div id="char-life-bar"> </div>
+					<div class="value">2186 / 3123</div>
+				</div>
+				<div id="char-power" class="box">
+					<div class="value">12%</div>
+					<div class="caption">POWER BOOST</div>
+				</div>
+				<div id="char-points" class="box">
+					<div class="value">5345</div>
+					<div class="caption">POINTS</div>
+				</div>
+				<div id="char-shield" class="box">
+					<div class="value">54%</div>
+					<div class="caption">SHIELD BOOST</div>
+				</div>
+				<div class="clear"> </div>
+			</div>
+			<div id="addon-wrapper" class="box">
+				Reserved area for boosters.<br />Comming soon!
+			</div>
+			<div class="clear"> </div>
 		</div>
-		
-		<!-- Map area -->
-		<div id="map-wrapper" class="ui-wrapper"> </div>
-		<div id="map" class="ui"> </div>
-		
-		<!-- Chat area -->
-		<div id="chat-wrapper" class="ui-wrapper"> </div>
-		<ul id="chat" class="ui"><input type="text" id="chat-text" /></ul>
-		
-		<!-- Logging area -->
-		<div id="logger-wrapper" class="ui-wrapper"> </div>
-		<ul id="logger" class="ui"> </ul>
+
+		<div id="logger"><ul> </ul></div>
+
+		<div id="fps-stats"> </div>
 		
 		<script type="text/javascript">
 			// Instantiate core objects.
