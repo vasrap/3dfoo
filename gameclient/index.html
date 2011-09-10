@@ -1,7 +1,6 @@
 <html>
 	<head>
 		<title>3D &lt;foo&gt;</title>
-		
 
 		<!-- Style sheet -->
 		<link rel="stylesheet" type="text/css" href="/lib/css/style.css" media="screen" />
@@ -85,14 +84,13 @@
 						lm + 'Chat.js', lm + 'Gfx.js', lm + 'Msg.js', 
 						lm + 'Map.js'], function () {
 
-							// Finally, initialize the application.
-							dom.init();
-							oauth.router();
-							
-							$(window).unload(function() {
-								msg.shutdown();
-							});
-
+					// Finally, initialize the application.
+					dom.init();
+					oauth.router();
+					
+					$(window).unload(function() {
+						msg.shutdown();
+					});
 				});
 			});
 		</script>
