@@ -53,3 +53,5 @@ function _Chat() {
 		$('#chat').prepend('<li>' + name + ':<br />' + data.message);
 	};
 }
+
+var chat = new _Chat();

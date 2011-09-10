@@ -10,10 +10,6 @@ function _Dom() {
 
 	this.init = function() {
 		// Center HTML elements.
-		$('#container').css("width", self.width + 'px');
-		$('#container').css("height", self.height + 'px');
-		$('#hud').css('left', ((self.width / 2) - $('#hud').width() / 2));
-		$('#logger').css('left', ((self.width / 2) - $('#logger').width() / 2));
 		$('#start').css('top', ((self.height / 2) - $('#start').height() / 2));
 		$('#start').css('left', ((self.width / 2) - $('#start').width() / 2));
 		$('#login').css('top', ((self.height / 2) - $('#login').height() / 2));
@@ -113,3 +109,5 @@ function _Dom() {
 		$('#char-shield .value').text('0%');
 	};
 }
+
+var dom = new _Dom();

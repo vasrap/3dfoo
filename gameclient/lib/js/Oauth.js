@@ -98,3 +98,5 @@ function _Oauth() {
 		}
 	};
 }
+
+var oauth = new _Oauth();

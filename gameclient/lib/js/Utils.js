@@ -29,3 +29,5 @@ function _Utils() {
 		return data;
 	};
 }
+
+var utils = new _Utils();

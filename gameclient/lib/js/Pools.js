@@ -74,3 +74,5 @@ function _Pools() {
 		self.defs.position = message.position;
 	};
 }
+
+var pools = new _Pools();

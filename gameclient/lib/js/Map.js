@@ -70,3 +70,5 @@ function _Map() {
 			
 	};
 }
+
+var map = new _Map();

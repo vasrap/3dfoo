@@ -518,3 +518,5 @@ function _Gfx() {
 		self.renderer.render(self.scene, self.camera);
 	};
 }
+
+var gfx = new _Gfx();

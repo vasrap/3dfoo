@@ -156,3 +156,5 @@ function _Msg() {
 		}
 	};
 }
+
+var msg = new _Msg();

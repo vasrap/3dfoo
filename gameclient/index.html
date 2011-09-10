@@ -2,27 +2,7 @@
 	<head>
 		<title>3D &lt;foo&gt;</title>
 		
-		<!-- 3rd party libraries -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-		<script src="/lib/3rd/js/Three/Three.js"></script>
-		<script src="/lib/3rd/js/jWebSocket.js"></script>
-		<script src="/lib/3rd/fonts/helvetiker_regular.typeface.js"></script>
-		<script src="/lib/3rd/js/json2.js"></script>
-		<script src="/lib/3rd/js/ImprovedNoise.js"></script>
-		<script src="/lib/3rd/js/RequestAnimationFrame.js"></script>
-		<script src="/lib/3rd/js/stats.js"></script>
-		
-		<!-- Application custom libraries -->
-		<script src="/lib/js/jwsGameLogicPlugIn.js"></script>
-		<script src="/lib/js/Utils.js"></script>
-		<script src="/lib/js/Pools.js"></script>
-		<script src="/lib/js/Dom.js"></script>
-		<script src="/lib/js/Oauth.js"></script>
-		<script src="/lib/js/Chat.js"></script>
-		<script src="/lib/js/Gfx.js"></script>
-		<script src="/lib/js/Msg.js"></script>
-		<script src="/lib/js/Map.js"></script>
-		
+
 		<!-- Style sheet -->
 		<link rel="stylesheet" type="text/css" href="/lib/css/style.css" media="screen" />
 	</head>
@@ -86,24 +66,50 @@
 
 		<div id="fps-stats"> </div>
 		
+		<script src="/lib/3rd/js/lazyload-min.js"></script>
 		<script type="text/javascript">
-			// Instantiate core objects.
-			var utils = new _Utils();
-			var pools = new _Pools();
-			var dom = new _Dom();
-			var oauth = new _Oauth();
-			var chat = new _Chat();
-			var gfx = new _Gfx();
-			var msg = new _Msg();
-			var map = new _Map();
+			// JavaScript 3rd party library location.
+			var lo = '/lib/3rd/js/';
+			var lf = '/lib/3rd/fonts/';
+			var lm = '/lib/js/';
 
-			$(document).ready(function() {	
-				dom.init();
-				oauth.router();
-			});
-			$(window).unload(function() {
-				msg.shutdown();
+			// Load 3rd party libraries first.
+			LazyLoad.js([lo + 'Three.js', lo + 'jWebSocket.js', lo + 'json2.js', 
+					lo + 'ImprovedNoise.js', lo + 'RequestAnimationFrame.js', 
+					lo + 'stats.js', lo + 'jquery.min.js',
+					lf + 'helvetiker_regular.typeface.js'], function () {
+
+				// Then load application libraries.
+				LazyLoad.js([lm + 'jwsGameLogicPlugIn.js', lm + 'Utils.js', 
+						lm + 'Pools.js', lm + 'Dom.js', lm + 'Oauth.js', 
+						lm + 'Chat.js', lm + 'Gfx.js', lm + 'Msg.js', 
+						lm + 'Map.js'], function () {
+
+							// Finally, initialize the application.
+							dom.init();
+							oauth.router();
+							
+							$(window).unload(function() {
+								msg.shutdown();
+							});
+
+				});
 			});
 		</script>
+		
+		<!-- Start of StatCounter Code for Default Guide -->
+		<script type="text/javascript">
+		var sc_project=7011272; 
+		var sc_invisible=1; 
+		var sc_security="ebca9e6b"; 
+		</script>
+		<script type="text/javascript"
+		src="http://www.statcounter.com/counter/counter.js"></script>
+		<noscript><div class="statcounter"><a title="tumblr hit
+		counter" href="http://statcounter.com/tumblr/"
+		target="_blank"><img class="statcounter"
+		src="http://c.statcounter.com/7011272/0/ebca9e6b/1/"
+		alt="tumblr hit counter"></a></div></noscript>
+		<!-- End of StatCounter Code for Default Guide -->
 	</body>
 </html>
