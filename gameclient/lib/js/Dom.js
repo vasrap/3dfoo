@@ -1,24 +1,34 @@
-// The following line is for JSHint
-/*global gfx: true, pools: true, msg: true, oauth: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global $, chat, gfx, map, msg, oauth, pools, utils : true */
 
-function _Dom() {
-	var self = this;
-
+/**
+ * General DOM manipulation utils.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ */
+var dom = {
 	// Window width and height.
-	this.width = window.innerWidth;
-	this.height = window.innerHeight;
+	width : window.innerWidth,
+	height : window.innerHeight,
 
-	this.init = function() {
+	// Logger hidden state.
+	loggerHidden : true,
+
+	init : function () {
+		var startEl = $('#start');
+		var loginEl = $('#login');
+
 		// Center HTML elements.
-		$('#start').css('top', ((self.height / 2) - $('#start').height() / 2));
-		$('#start').css('left', ((self.width / 2) - $('#start').width() / 2));
-		$('#login').css('top', ((self.height / 2) - $('#login').height() / 2));
-		$('#login').css('left', ((self.width / 2) - $('#login').width() / 2));
+		startEl.css('top', ((dom.height / 2) - startEl.height() / 2));
+		startEl.css('left', ((dom.width / 2) - startEl.width() / 2));
+		loginEl.css('top', ((dom.height / 2) - loginEl.height() / 2));
+		loginEl.css('left', ((dom.width / 2) - loginEl.width() / 2));
         
-		// What to do when the user clicks START.
-		$('#start').click(function() {
+		// Click handler for START button.
+		startEl.click(function () {
 			// Switch to in game CSS.
-			$('#container').css('background', 'none');
+			$('#container').css({background: 'none'});
 			$('#overlay').css({background: 'none', opacity: 1, 'z-index': 0});
 
 			// This flag allows client to start transmiting data.
@@ -34,80 +44,90 @@ function _Dom() {
 		});
 		
 		// Click handler for login buttons.
-		$('#login .twitter, #login .facebook').click(function() {
+		$('#login .twitter, #login .facebook').click(function () {
 			// Start oauth process.
 			oauth.get(true, $(this).attr('class'));
 			
-			$('#login').hide();
+			loginEl.hide();
 		});
 
 		// Disable onmousedown event when mouse is over the HUD.
-		document.getElementById('hud').onmousedown = function(e) {
+		document.getElementById('hud').onmousedown = function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 		};
 		
-		document.onkeyup = function(e) {
+		document.onkeyup = function (e) {
+			// Create references for use inside the local scope (faster look-up).
+			var loginEl = $('#login');
+
 			// Catch tab key up event and stop it from propagating.
 			// Toggles logger visibility.
-			if (e.keyCode == 9) {
-				if ($('#logger').is(':visible')) {
-					$('#logger').hide();
+			if (e.keyCode === 9) {
+				if (loginEl.is(':visible')) {
+					loginEl.hide();
 				} else {
-					$('#logger').show();
+					loginEl.show();
 				}
 				
 				e.preventDefault();
 				e.stopPropagation();
 			}
 		};
-	};
+	},
 	
 	/**
 	 * Logger.
+	 *
+	 * TODO: remove jquery animation, use CSS3 animations.
 	 */
-	this.loggerHidden = true;
-	this.log = function(message) {
-		var date = new Date();
-		hours = (date.getHours() >= 10) ? date.getHours() : '0' + date.getHours();
-		minutes = (date.getMinutes() >= 10) ? date.getMinutes() : '0' + date.getMinutes();
-		seconds = (date.getSeconds() >= 10) ? date.getSeconds() : '0' + date.getSeconds();
-		dateString = hours + ':' + minutes + ':' + seconds;
+	log : function (message) {
+		var loggerEl = $('#logger');
 
-		$('#logger').append('<li> [' + dateString + '] '  + message + '</li>');
+		var date = new Date();
+		var hours = (date.getHours() >= 10) ? date.getHours() : '0' + date.getHours();
+		var minutes = (date.getMinutes() >= 10) ? date.getMinutes() : '0' + date.getMinutes();
+		var seconds = (date.getSeconds() >= 10) ? date.getSeconds() : '0' + date.getSeconds();
+		var dateString = hours + ':' + minutes + ':' + seconds;
+
+		loggerEl.append('<li> [' + dateString + '] '  + message + '</li>');
 		
-		if (self.loggerHidden) {
-			self.loggerHidden = false;
-			$('#logger').animate({height: '97px'}, 100, 'linear', function() {
+		if (dom.loggerHidden) {
+			dom.loggerHidden = false;
+			loggerEl.animate({height: '97px'}, 100, 'linear', function () {
 				
-				$('#logger').scrollTop(100000);
+				loggerEl.scrollTop(100000);
 				
-				$('#logger').animate({height: '97px'}, 2700, 'linear', function() {
-					$('#logger').animate({height: '0px'}, 100, 'linear', function() {
-						self.loggerHidden = true;
+				loggerEl.animate({height: '97px'}, 2700, 'linear', function () {
+					loggerEl.animate({height: '0px'}, 100, 'linear', function () {
+						dom.loggerHidden = true;
 						
-						$('#logger').scrollTop(100000);
+						loggerEl.scrollTop(100000);
 					});
 				});
 			});
 		} 
-	};
+	},
 	
 	/**
 	 * Update character info.
 	 */
-	this.updateCharacterInfo = function() {
+	updateCharacterInfo : function () {
+		var loggerEl = $('#logger');
+		var playerHealth = pools.player.health;
+		var playerTopHealth = pools.player.topHealth;
+		var playerPoints = pools.player.points;
+
 		// Calculate health percentage.
-		var healthPercentage = pools.player.health / pools.player.topHealth * 100;
+		var healthPercentage = playerHealth / playerTopHealth * 100;
 		
-		$('#char-life .value').text(pools.player.health + ' / ' + pools.player.topHealth);
+		// Update DOM elements.
+		$('#char-life .value').text(playerHealth + ' / ' + playerTopHealth);
 		$('#char-life-bar').css('width', healthPercentage + '%');
-		$('#char-points .value').text(pools.player.points);
+		$('#char-points .value').text(playerPoints);
 
 		// Those are not yet available and they are always 0%.
 		$('#char-power .value').text('0%');
 		$('#char-shield .value').text('0%');
-	};
-}
-
-var dom = new _Dom();
+	}
+};

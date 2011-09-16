@@ -1,16 +1,21 @@
-// The following line is for JSHint
-/*global gfx: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global $, gfx : true */
 
-function _Pools() {
-	var self = this;
-
-	this.oauth = {
+/**
+ * The pools container.
+ * Contains definitions and updates for players and addons.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ */
+var pools = {
+	oauth : {
 		oauthNetwork: '',
 		oauthToken: '',
 		oauthTokenSecret: ''
-	};
+	},
 	
-	this.player = {
+	player : {
 		id: 0,
 		name: '',
 		picture: '',
@@ -20,59 +25,57 @@ function _Pools() {
 		addons: [],
 		damage: [],
 		locks: []
-	};
+	},
 	
-	this.players = [];
-	this.beams = [];
-	this.addons = [];
+	players : [],
+	beams : [],
+	addons : [],
 	
-	this.defs = {
+	defs : {
 		players: [],
 		addons: [],
 		position: []
-	};
+	},
 	
-	this.lastHealth = null;
+	lastHealth : null,
 
-	this.updateMe = function(message) {
-		self.player.id = message.me.id;
-		self.player.name = message.me.name;
-		self.player.picture = message.me.picture;
+	updateMe : function(message) {
+		pools.player.id = message.me.id;
+		pools.player.name = message.me.name;
+		pools.player.picture = message.me.picture;
 
 		// TODO: this has to go in Dom.js
-		$('#char-portrait img').attr('src', self.player.picture);
-	};
+		$('#char-portrait img').attr('src', pools.player.picture);
+	},
 	
-	this.updatePlayer = function(message) {
-		self.player.health = message.health;
-		self.player.topHealth = message.topHealth;
-		self.player.points = message.points;
-		self.player.addons = message.addons;
-		self.player.damage = message.damage;
-		self.player.locks = message.locks;
+	updatePlayer : function(message) {
+		pools.player.health = message.health;
+		pools.player.topHealth = message.topHealth;
+		pools.player.points = message.points;
+		pools.player.addons = message.addons;
+		pools.player.damage = message.damage;
+		pools.player.locks = message.locks;
 		
-		if (self.lastHealth != self.player.health && self.lastHealth !== null) {
-			if (self.player.health === 0) {
+		if (pools.lastHealth !== pools.player.health && pools.lastHealth !== null) {
+			if (pools.player.health === 0) {
 				gfx.deadEffect();
 			} else {
 				gfx.damageEffect();
 			}
 		}
 		
-		self.lastHealth = self.player.health;
-	};
+		pools.lastHealth = pools.player.health;
+	},
 	
-	this.updateBcast = function(message) {
-		self.players = message.players;
-		self.beams = message.beams;
-		self.addons = message.addons;
-	};
+	updateBcast : function(message) {
+		pools.players = message.players;
+		pools.beams = message.beams;
+		pools.addons = message.addons;
+	},
 	
-	this.updateDefs = function(message) {
-		self.defs.players = message.players;
-		self.defs.addons = message.addons;
-		self.defs.position = message.position;
-	};
-}
-
-var pools = new _Pools();
+	updateDefs : function(message) {
+		pools.defs.players = message.players;
+		pools.defs.addons = message.addons;
+		pools.defs.position = message.position;
+	}
+};

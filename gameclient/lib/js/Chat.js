@@ -1,14 +1,19 @@
-// The following line is for JSHint
-/*global gfx: true, pools: true, msg: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global $, gfx, pools, msg : true */
 
-// TODO: make chat more user friendly
-function _Chat() {
-	var self = this;
-	
+/**
+ * The chat controller.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ *
+ *TODO: make chat more user friendly
+ */
+var chat = {
 	/**
 	 * Initialized mouse / keyboard interaction handlers.
 	 */
-	this.init = function() {
+	init : function() {
 		document.getElementById('chat-text').onmouseover = function(e) {
 			gfx.toggleActiveCamera();
 		};
@@ -25,11 +30,11 @@ function _Chat() {
 		};
 
 		document.getElementById('chat-text').onkeydown = function(e) {
-			if (e.keyCode == 13) {
+			if (e.keyCode === 13) {
 				if ($('#chat-text').val().trim() !== '') {
 
 					msg.updateChat($('#chat-text').val());
-					self.updateFeed({message: $('#chat-text').val()});
+					chat.updateFeed({message: $('#chat-text').val()});
 
 					$('#chat-text').val('');
 				}
@@ -37,21 +42,19 @@ function _Chat() {
 				e.stopPropagation();
 			}
 		};
-	};
+	},
 	
 	/**
 	 * Updates the chat feed.
 	 */
-	this.updateFeed = function(message) {
+	updateFeed : function(message) {
 		var data = message;
 		
 		var name = 'me';
-		if (data.id && data.id != pools.player.id) {
+		if (data.id && data.id !== pools.player.id) {
 			name = pools.defs.players[data.id].name;
 		}
 		
 		$('#chat').prepend('<li>' + name + ':<br />' + data.message);
-	};
-}
-
-var chat = new _Chat();
+	}
+};

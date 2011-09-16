@@ -1,34 +1,39 @@
-// The following line is for JSHint
-/*global oauth: true, dom: true, pools: true, msg: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global $, dom, pools, msg : true */
 
-function _Oauth() {
-	var self = this;
-
+/**
+ * The oauth controller.
+ * Guides the browser through the oauth process.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ */
+var oauth = {
 	// Count after 3 then stop trying to access the rest service.
-	this.retryCount = 0;
+	retryCount : 0,
 
 	// Generate oauth url method.
-	this.url = function(network) {
+	url : function(network) {
 		if (network === undefined) return 0;
 
 		return '/rest/service.py/oauth-' + network + '/';
-	};
+	},
 
 	// Figure out what to do regarding the oauth process.
-	this.router = function() {
+	router : function() {
 		var urlParams = $(location).attr('search');
 		
-		if (urlParams.indexOf('oauth=twitter') != -1) {
+		if (urlParams.indexOf('oauth=twitter') !== -1) {
 			oauth.get(false, 'twitter');
-		} else if (urlParams.indexOf('oauth=facebook') != -1) {
+		} else if (urlParams.indexOf('oauth=facebook') !== -1) {
 			oauth.get(false, 'facebook');
 		} else {
 			$('#login').show();
 		}
-	};
+	},
 
 	// Defines the client side oauth process.
-	this.get = function(userAction, network) {
+	get : function(userAction, network) {
 		if (userAction === undefined) return 0;
 
 		var urlParams = $(location).attr('search');
@@ -37,20 +42,20 @@ function _Oauth() {
 		if (
 			// Twitter
 			(urlParams.indexOf('oauth=twitter') && 
-			urlParams.indexOf('oauth_token=') != -1 && 
-			urlParams.indexOf('oauth_verifier=') != -1) ||
+			urlParams.indexOf('oauth_token=') !== -1 && 
+			urlParams.indexOf('oauth_verifier=') !== -1) ||
 			// Facebook
 			(urlParams.indexOf('oauth=facebook') && 
-			urlParams.indexOf('code=') != -1))
+			urlParams.indexOf('code=') !== -1))
 		{
-			$.get(self.url(network) + '2' + urlParams, function(data) {
-				self.retryCount++;
+			$.get(oauth.url(network) + '2' + urlParams, function(data) {
+				oauth.retryCount++;
 
 				if (!data.error) {
 					window.location = '/?oauth=' + network;
 				} else {
-					if (self.retryCount <= 3) {
-						self.get();
+					if (oauth.retryCount <= 3) {
+						oauth.get();
 					} else {
 						dom.userError('Couldn\'t contact Twitter. Please, try again later.');
 					}
@@ -59,7 +64,7 @@ function _Oauth() {
 
 		// If user just visited 3dfoo or if we have oauth data in session.
 		} else {
-			$.get(self.url(network) + '9', function(data) {
+			$.get(oauth.url(network) + '9', function(data) {
 				// If oauth details in session.
 				if (!data.error) {
 					pools.oauth = {
@@ -77,14 +82,14 @@ function _Oauth() {
 					// If user triggered a login action.
 					if (userAction) {
 						// Ask the rest service what's the authorize url.
-						$.get(self.url(network) + '1', function(data) {
-							self.retryCount++;
+						$.get(oauth.url(network) + '1', function(data) {
+							oauth.retryCount++;
 
 							if (!data.error) {
 								window.location = data.authorize_url;
 							} else {
-								if (self.retryCount <= 3) {
-									self.get();
+								if (oauth.retryCount <= 3) {
+									oauth.get();
 								} else {
 									dom.userError('Couldn\t contact oauth service. Please, try again later.');
 								}
@@ -96,7 +101,5 @@ function _Oauth() {
 				}
 			}, 'json');
 		}
-	};
-}
-
-var oauth = new _Oauth();
+	}
+};

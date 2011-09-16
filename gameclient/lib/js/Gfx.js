@@ -1,313 +1,346 @@
-// The following line is for JSHint
-/*global gfx: true, pools: true, msg: true, oauth: true, dom: true, THREE: true, Stats: true, utils: true, requestAnimationFrame: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global $, chat, dom, map, msg, oauth, pools, utils, Stats, THREE, requestAnimationFrame : true */
 
-function _Gfx() {
-	var self = this;
-	
+/**
+ * The 3D class responsible for initializing the 3D environment and -
+ * instantiating and keeping all 3D objects up to date.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ */
+var gfx = {
 	// The WebGL renderer.
-	this.renderer = null;
+	renderer : null,
 
 	// Camera and scene.
-	this.camera = null;
-	this.scene = null;
+	camera : null,
+	scene : null,
 	
 	// Used for detecting collisions.	
-	this.rayLand = null;
-	this.projector = null;
+	rayLand : null,
+	projector : null,
 
 	// How wide and long is the land plane.
-	this.landSize = 8000;
+	landSize : 8000,
 	
 	// Starting position.
-	// [x, y]
-	this.position = [0, 0];
+	position : [0, 0],
 	
-	// Active user 3D objects.
-	this.users = [];
+	// Active player 3D objects.
+	players : {},
 	
 	// Active beam 3D objects.
-	this.beams = [];
+	beams : {},
 	
 	// Flag indicating if animation has started.
-	this.engineStarted = false;
+	engineStarted : false,
 	
-	// Flag indicating if user clicked the start button.
-	this.startClicked = false;
+	// Flag indicating if player clicked the start button.
+	startClicked : false,
 
 	// Mouse handling variables.
-	this.mouse = {x: 0, y: 0};
-	this.mouseDown = false;
+	mouse : {x: 0, y: 0},
+	mouseDown : false,
 	
 	// The clicked player id.
-	this.clickId = null;
+	clickId : null,
 	
 	// Frames per second.
-	this.fps = null;
+	fps : null,
 
 	/**
 	 * Toggles camera activity.
 	 */
-	this.toggleActiveCamera = function() {
-		if (self.startClicked) {
-			if (self.camera.movementSpeed === 0) {
-				self.camera.lookSpeed = 3 / 30;
-				self.camera.movementSpeed = 200;
+	toggleActiveCamera : function () {
+		if (gfx.startClicked) {
+			if (gfx.camera.movementSpeed === 0) {
+				gfx.camera.lookSpeed = 3 / 30;
+				gfx.camera.movementSpeed = 200;
 			} else {
-				self.camera.lookSpeed = 3 / 3000;
-				self.camera.movementSpeed = 0;
+				gfx.camera.lookSpeed = 3 / 3000;
+				gfx.camera.movementSpeed = 0;
 			}
 		}
-	};
+	},
 	
 	/*
 	 * Assigns methods to the mouse events for the overlay element.
 	 * Mostly used for mouse collision detection with other players -
 	 * and managing shooting.
 	 */
-	this.initDomHandlers = function() {
-		document.getElementById('overlay').onmousemove = function(e) {
+	initDomHandlers : function () {
+		var overlayEl = document.getElementById('overlay');
+
+		overlayEl.onmousemove = function (e) {
 			e.preventDefault();
 
-			self.mouse.x = (e.clientX / dom.width) * 2 - 1;
-			self.mouse.y = - (e.clientY / dom.height) * 2 + 1;
+			gfx.mouse.x = (e.clientX / dom.width) * 2 - 1;
+			gfx.mouse.y = - (e.clientY / dom.height) * 2 + 1;
 		};
-		document.getElementById('overlay').onmousedown = function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-
-			self.mouseDown = !self.mouseDown;
-		};
-		document.getElementById('overlay').onmouseup = function(e) {
+		overlayEl.onmousedown = function (e) {
 			e.preventDefault();
 			e.stopPropagation();
 
-			self.mouseDown = !self.mouseDown;
+			gfx.mouseDown = !gfx.mouseDown;
 		};
-	};
+		overlayEl.onmouseup = function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			gfx.mouseDown = !gfx.mouseDown;
+		};
+	},
 	
 	// What to do when health is changing.
-	this.damageEffect = function() {
-		$('#overlay').css('background', '#880000');
-		$('#overlay').animate({
-			opacity: 0.1
-		}, 650, function() {
-			$('#overlay').css('background', 'transparent');
-			$('#overlay').css('opacity', 1);
+	// TODO: create CSS classes to manage the effect.
+	damageEffect : function () {
+		var overlayEl = $('#overlay');
+
+		overlayEl.css({'background': '#880000'});
+		overlayEl.animate({opacity: 0.1}, 650, function () {
+			overlayEl.css({'background': 'transparent'});
+			overlayEl.css({'opacity': 1});
 		});
-	};
+	},
 	
 	// What to do when health is 0.
-	this.deadEffect = function() {
-		$('#overlay').css('background', '#880000');
-		$('#overlay').css('opacity', 0.8);
-		self.toggleActiveCamera();
-	};
+	// TODO: create CSS classes to manage the effect.
+	deadEffect : function () {
+		var overlayEl = $('#overlay');
+
+		overlayEl.css({'background': '#880000'});
+		overlayEl.css({'opacity': 0.8});
+		gfx.toggleActiveCamera();
+	},
 	
 	/**
 	 * Updates 3D objects.
 	 */
-	this.updateWorld = function() {
-		self.deletePlayers();
-		self.insertPlayers();
-		self.updatePlayers();
-		self.updateBeams();
-	};
+	updateWorld : function () {
+		gfx.deletePlayers();
+		gfx.insertPlayers();
+		gfx.updatePlayers();
+		gfx.updateBeams();
+	},
 
 	/**
 	 * Initializes new player objects.
 	 */
-	this.insertPlayers = function() {
+	insertPlayers : function () {
 		for (var id in pools.defs.players) {
-			if (!self.users[id] && id != pools.player.id) {
-				var data = pools.defs.players[id];
-	
-				// Figure out how to color players.
-				var playerType = data.type;
-				var ballColor = null;
-				if (playerType == 'foe') {
-					ballColor = 0x660000;
-				} else if (playerType == 'ally') {
-					ballColor = 0x000066;
-				} else if (playerType == 'weak') {
-					ballColor = 0x000000;
-				} else if (playerType =='ghost') {
-					ballColor = 0xFFFFFF;
+			if (pools.defs.players.hasOwnProperty(id)) {
+				if (!gfx.players[id] && id !== pools.player.id) {
+					var playerDef = pools.defs.players[id];
+		
+					// Figure out how to color players.
+					var playerType = playerDef.type;
+					var ballColor = null;
+					if (playerType === 'foe') {
+						ballColor = 0x660000;
+					} else if (playerType === 'ally') {
+						ballColor = 0x000066;
+					} else if (playerType === 'weak') {
+						ballColor = 0x000000;
+					} else if (playerType === 'ghost') {
+						ballColor = 0xFFFFFF;
+					} else {
+						// TODO: something went wrong
+						return alert('ERROR: 1');
+					}
+
+					// Create the player ball 3D object.
+					var ball = 
+						new THREE.Mesh(
+							new THREE.SphereGeometry(5, 8, 8),
+							new THREE.MeshBasicMaterial({color: ballColor}));
+					ball.position.x = 0;
+					ball.position.y = 0;
+					ball.position.z = 0;
+
+					// Add player type and id properties for future reference.
+					ball.player = {
+						type: playerType,
+						id: id
+					};
+
+					// Set collidesion detection for players.
+					var sc = new THREE.SphereCollider(ball.position, 5);
+					sc.mesh = ball;
+					THREE.Collisions.colliders.push(sc);
+
+					dom.log('New player connected.');
+
+					// Create the player id text.
+					var playerIdText = gfx.getPlayerIdText(playerDef.name);
+
+					// Create the player pic.
+					var playerPic = gfx.getPlayerPic(playerDef.picture);
+
+					// Assign text and picture as child 3D objects.
+					ball.addChild(playerIdText);
+					ball.addChild(playerPic);
+
+					// Initialize player.
+					var newPlayerEnt = {};
+
+					// Add player object references to the new player.
+					newPlayerEnt.ball = ball;
+					newPlayerEnt.playerIdText = playerIdText;
+					newPlayerEnt.playerPic = playerPic;
+					
+					// Add player 3D object to the scene.
+					gfx.scene.addChild(ball);
+					
+					// Add new player to the players pool.
+					gfx.players[id.toString()] = newPlayerEnt;
 				}
-
-				// Initialize player array.
-				self.users[id] = [];
-
-				// Create the user ball 3D object.
-				self.users[id].ball = 
-					new THREE.Mesh(
-						new THREE.SphereGeometry(5, 8, 8),
-						new THREE.MeshBasicMaterial({color: ballColor}));
-				self.users[id].ball.position.x = 0;
-				self.users[id].ball.position.y = 0;
-				self.users[id].ball.position.z = 0;
-
-				// Add player type and id properties for future reference.
-				self.users[id].ball.user = {
-					type: playerType,
-					id: id
-				};
-
-				// Set collidesion detection for players.
-				var sc = new THREE.SphereCollider(self.users[id].ball.position, 5);
-				sc.mesh = self.users[id].ball;
-				THREE.Collisions.colliders.push(sc);
-
-				dom.log('New user connected.');
-
-				// Create the user id text.
-				self.users[id].userIdText = 
-					self.getUserIdText(data.name);
-
-				// Create the user pic.
-				self.users[id].userPic = 
-					self.getUserPic(data.picture);
-
-				// Assign text and picture as child 3D objects.
-				self.users[id].ball.addChild(self.users[id].userIdText);
-				self.users[id].ball.addChild(self.users[id].userPic);
-				
-				// Add player 3D object to the scene.
-				self.scene.addChild(self.users[id].ball);
 			}
 		}
-	};
+	},
 	
 	/**
 	 * Removes obsolete player 3D objects.
 	 */
-	this.deletePlayers = function() {
-		for (var id in self.users) {
-			if (!pools.defs.players[id]) {
-				dom.log('User disconnected.');
+	deletePlayers : function () {
+		for (var id in gfx.players) {
+			if (gfx.players.hasOwnProperty(id)) {
+				if (!pools.defs.players[id]) {
+					dom.log('User disconnected.');
 
-				// Remove 3D object from the scene.
-				self.scene.removeChildRecurse(self.users[id].ball);
-				delete self.users[id];
+					// Remove 3D object from the scene.
+					gfx.scene.removeChildRecurse(gfx.players[id].ball);
+					delete gfx.players[id];
 
-				// Remove player from the map.
-				map.remove(id);
+					// Remove player from the map.
+					map.remove(id);
+				}
 			}
 		}
-	};
+	},
 	
 	/**
 	 * Update active player information.
 	 */
-	this.updatePlayers = function() {
-		for (var pid in pools.players) {
-			if (self.users[pid]) {
-				var data = pools.players[pid];
+	updatePlayers : function () {
+		for (var id in pools.players) {
+			if (pools.players.hasOwnProperty(id)) {
+				var playerEnt = gfx.players[id];
 
-				// Update position.
-				self.users[pid].ball.position.x = data.position.x;
-				self.users[pid].ball.position.y = data.position.y;
-				self.users[pid].ball.position.z = data.position.z;
+				if (playerEnt) {
+					var playerUpd = pools.players[id];
 
-				// Update rotation.
-				self.users[pid].userIdText.rotation.y = (-1 * data.rotation.theta) + 1.57;
+					// Update position.
+					playerEnt.ball.position.x = playerUpd.position.x;
+					playerEnt.ball.position.y = playerUpd.position.y;
+					playerEnt.ball.position.z = playerUpd.position.z;
 
-				self.users[pid].userPic.position.x = 
-					(5.1 * Math.sin(data.rotation.phi) * Math.cos(data.rotation.theta));
-				self.users[pid].userPic.position.z = 
-					(5.1 * Math.sin(data.rotation.phi) * Math.sin(data.rotation.theta));
-				self.users[pid].userPic.position.y = 
-					(5.1 * Math.cos(data.rotation.phi));
-				self.users[pid].userPic.rotation.y = 
-					(-1 * data.rotation.theta) + 1.57;
-				
-				// Update player type (ie. weak, ghost, etc).
-				self.users[pid].ball.user.type = 
-					pools.defs.players[pid].type;
+					// Update rotation.
+					playerEnt.playerIdText.rotation.y = (-1 * playerUpd.rotation.theta) + 1.57;
+
+					playerEnt.playerPic.position.x = 
+						(5.1 * Math.sin(playerUpd.rotation.phi) * Math.cos(playerUpd.rotation.theta));
+					playerEnt.playerPic.position.z = 
+						(5.1 * Math.sin(playerUpd.rotation.phi) * Math.sin(playerUpd.rotation.theta));
+					playerEnt.playerPic.position.y = 
+						(5.1 * Math.cos(playerUpd.rotation.phi));
+					playerEnt.playerPic.rotation.y = 
+						(-1 * playerUpd.rotation.theta) + 1.57;
+					
+					// Update player type (ie. weak, ghost, etc).
+					playerEnt.ball.player.type = pools.defs.players[id].type;
+				}
 			}
 		}
-	};
+	},
 	
 	/**
 	 * Update the beam 3D objects.
 	 */
-	this.updateBeams = function() {
+	updateBeams : function () {
+		var selfPlayerId = pools.player.id;
+
 		// Removes in-active beams.
-		for (var bid in self.beams) {
-			if (!pools.beams[bid]) {
-				self.scene.removeChild(self.beams[bid]);
-				delete self.beams[bid];
+		for (var id in gfx.beams) {
+			if (gfx.beams.hasOwnProperty(id)) {
+				if (!gfx.beams[id]) {
+					gfx.scene.removeChild(gfx.beams[id]);
+					delete gfx.beams[id];
+				}
 			}
 		}
 		
 		// Inserts new beams.
 		// Already added beams are automatically managed since their geometry -
 		// is a reference to the player 3D objects.
-		for (var ppid in pools.beams) {
-			// If this is a new 3D beam object
-			if (!self.beams[ppid] && ppid != pools.player.id && pools.beams[ppid] != pools.player.id) {
-				try {
+		for (id in gfx.beams) {
+			if (gfx.beams.hasOwnProperty(id)) {
+				var beamEnt = gfx.beams[id];
+				var playerEnt = gfx.players[id];
+
+				// If this is a new 3D beam object
+				if (!beamEnt && id !== selfPlayerId && beamEnt !== selfPlayerId) {
 					var beamMaterial = new THREE.LineBasicMaterial({color: 0xFF0000});
 					var beamGeometry = new THREE.Geometry();
-					beamGeometry.vertices.push(new THREE.Vertex(self.users[ppid].ball.position));
-					beamGeometry.vertices.push(new THREE.Vertex(self.users[pools.beams[ppid]].ball.position));
+					beamGeometry.vertices.push(new THREE.Vertex(gfx.players[id].ball.position));
+					beamGeometry.vertices.push(new THREE.Vertex(gfx.players[pools.beams[id]].ball.position));
 
 					var beam = new THREE.Line(beamGeometry, beamMaterial);
 
-					self.beams[ppid] = beam;
+					gfx.beams[id.toString()] = beam;
 
-					self.scene.addChild(beam);
-				// TODO: is try / catch needed here?
-				} catch (e) {
-					
+					gfx.scene.addChild(beam);
+
+				// If the 3D beam object already exists.
+				} else if (beamEnt) {
+					// Update vertices on render.	
+					beamEnt.geometry.__dirtyVertices = true;
 				}
-
-			// If the 3D beam object already exists.
-			} else if (self.beams[ppid]) {
-				// Update vertices on render.	
-				self.beams[ppid].geometry.__dirtyVertices = true;
 			}
 		}
-	};
+	},
 
 	/**
-	 * Generates and returns the user id text object.
+	 * Generates and returns the player id text object.
 	 */
-	this.getUserIdText = function(userName) {
-		var userIdTextGeometry = 
-			new THREE.TextGeometry(userName, {
+	getPlayerIdText : function (playerName) {
+		var geometry = 
+			new THREE.TextGeometry(playerName, {
 				size: 0.8, height: 0.1, bezelEnabled: false
 			});
-		var userIdTextMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
-		var userIdTextMesh = new THREE.Mesh(userIdTextGeometry, userIdTextMaterial);
+		var material = new THREE.MeshBasicMaterial({color: 0xffffff});
+		var ent = new THREE.Mesh(geometry, material);
 
-		userIdTextMesh.position.y = 7;
+		ent.position.y = 7;
 
-		return userIdTextMesh;
-	};
+		return ent;
+	},
 
 	/**
-	 * Generates and returns the user picture object.
+	 * Generates and returns the player picture object.
 	 */
-	this.getUserPic = function(userPic) {
-		var userIdTextGeometry = 
+	getPlayerPic : function (playerPic) {
+		var geometry = 
 			new THREE.PlaneGeometry(6.5, 6.5, 154, 128);
-		var userIdTextMaterial = new THREE.MeshBasicMaterial({
-			map: THREE.ImageUtils.loadTexture(userPic)});
-		var userIdTextMesh = new THREE.Mesh(userIdTextGeometry, userIdTextMaterial);
-		userIdTextMesh.doubleSided = false;
+		var material = 
+			new THREE.MeshBasicMaterial({
+				map: THREE.ImageUtils.loadTexture(playerPic)});
+		var ent = new THREE.Mesh(geometry, material);
+		ent.doubleSided = false;
 
-		return userIdTextMesh;
-	};
+		return ent;
+	},
 
 	/**
 	 * Initializes THREE renderer and starts the rendering process.
 	 */
-	this.init = function(position) {
+	init : function (position) {
+		var containerEl = document.getElementById('container');
+
 		// Try to initialize 3D the renderer.
 		try {
 			dom.log('Initializing 3D environment...');
 
-			self.renderer = new THREE.WebGLRenderer();
+			gfx.renderer = new THREE.WebGLRenderer();
 		} catch (e) {
 			dom.log('Failed to initialize 3D environment!');
 
@@ -315,58 +348,52 @@ function _Gfx() {
 		}
 		
 		// Set starting position.
-		self.position = position;
+		gfx.position = position;
 
 		// Set canvas size.
-		self.renderer.setSize(dom.width, dom.height);
+		gfx.renderer.setSize(dom.width, dom.height);
 
 		// Ray used for land collision detection.
-		self.rayLand = new THREE.Ray();
-		self.rayLand.origin.y = 10000;
-		self.rayLand.direction = new THREE.Vector3(0, -1, 0);
+		gfx.rayLand = new THREE.Ray();
+		gfx.rayLand.origin.y = 10000;
+		gfx.rayLand.direction = new THREE.Vector3(0, -1, 0);
 
 		// Variables used for player collision detection.
-		self.projector = new THREE.Projector();
+		gfx.projector = new THREE.Projector();
 		
 		// Load camera, scene, and static objects.
-		var loadScene = self.initScene();
+		var loadScene = gfx.initScene();
 
 		// Assign generated 3D objects to class properties.
-		self.scene = loadScene.scene;
-		self.camera = loadScene.camera;
+		gfx.scene = loadScene.scene;
+		gfx.camera = loadScene.camera;
 
 		// Initialize mouse handlers.
-		self.initDomHandlers();
+		gfx.initDomHandlers();
 
 		// Attach the 3D rendered to the DOM element.
-		document.getElementById('container').appendChild(self.renderer.domElement);
+		containerEl.appendChild(gfx.renderer.domElement);
 
 		dom.log('Initialized 3D environment');
 		
 		// Frames per second stats.
-		self.fps = new Stats();
-		self.fps.domElement.id = 'fps-stats';
-		self.fps.domElement.style.position = 'absolute';
-		self.fps.domElement.style.zIndex = 100;
-		document.getElementById('container').appendChild(self.fps.domElement);
+		gfx.fps = new Stats();
+		gfx.fps.domElement.id = 'fps-stats';
+		gfx.fps.domElement.style.position = 'absolute';
+		gfx.fps.domElement.style.zIndex = 100;
+		containerEl.appendChild(gfx.fps.domElement);
 
 		// Trigger the rendering process.
-		self.animate();
+		gfx.animate();
 
 		// Activate camera.
 		gfx.toggleActiveCamera();
-	};
+	},
 
 	/**
 	 * Instantiates initial scene, camera and 3D objects.
 	 */
-	this.initScene = function() {
-		// Daylight modifier.
-		var d = new Date();
-		var hour = d.getHours();
-		// TODO: make this nicer.
-		if (hour <= 12) hour = 13 - hour; else hour = hour - 11; hour /= 2;
-
+	initScene : function () {
 		// Scene and camera instantiation.
 		var result = {
 			"scene": new THREE.Scene(),
@@ -380,12 +407,12 @@ function _Gfx() {
 				"lookSpeed": 3 / 3000
 			})
 		};
-		result.camera.position.y = self.position.x;
-		result.camera.position.x = self.position.y;
+		result.camera.position.y = gfx.position.x;
+		result.camera.position.x = gfx.position.y;
 		result.camera.position.z = 0;
 
 		// Point light instantiation.
-		var sunPointLight = new THREE.PointLight(0x222222, 12 * 1.5 / hour);
+		var sunPointLight = new THREE.PointLight(0x222222, 6);
 		sunPointLight.position.y = 2200;
 		result.scene.addChild(sunPointLight);
 
@@ -397,7 +424,7 @@ function _Gfx() {
 
 		// Sky 3D object instantiation.
 		var skyGeometry = new THREE.SphereGeometry(16000, 32, 32);
-		var skyMaterial = new THREE.MeshBasicMaterial({color: 0x0099BB / hour});
+		var skyMaterial = new THREE.MeshBasicMaterial({color: 0x0099BB});
 		var sky = new THREE.Mesh(skyGeometry, skyMaterial);
 		sky.flipSided = true;	
 		sky.rotation.x = Math.PI / 2;
@@ -406,7 +433,7 @@ function _Gfx() {
 
 		// Land geometry.
 		var data = utils.generateHeight(32, 32);
-		var landGeometry = new THREE.PlaneGeometry(self.landSize, self.landSize, 31, 31);
+		var landGeometry = new THREE.PlaneGeometry(gfx.landSize, gfx.landSize, 31, 31);
 		for (var i = 0; i < landGeometry.vertices.length; i++) {
 			landGeometry.vertices[i].position.z = data[i] * 20;
 		}
@@ -431,73 +458,85 @@ function _Gfx() {
 		}	
 
 		// Add land for collision detection.
-		THREE.Collisions.colliders.push(THREE.CollisionUtils.MeshColliderWBox(land));
+		//THREE.Collisions.colliders.push(THREE.CollisionUtils.MeshColliderWBox(land));
 
 		return result;
-	};
+	},
 
 	/**
 	 * Animation.
 	 */
-	this.animate = function() {
-		// When this frame is done rendering call animate again.
-		requestAnimationFrame(self.animate);
-        
-		self.rayLand.origin.x = self.camera.position.x;
-		self.rayLand.origin.z = self.camera.position.z;
+	animate : function () {
+		var camera = gfx.camera;
 
-		var lastPos = self.camera.position.clone();
+		// When this frame is done rendering call animate again.
+		requestAnimationFrame(gfx.animate);
+        
+		gfx.rayLand.origin.x = camera.position.x;
+		gfx.rayLand.origin.z = camera.position.z;
 
 		// Get the camera above the land object at all times.
-		var c = THREE.Collisions.rayCastNearest(self.rayLand);
+		var c = THREE.Collisions.rayCastNearest(gfx.rayLand);
 		if (c) {
-			lastPos = self.rayLand.origin.clone().subSelf(new THREE.Vector3(0, c.distance - 5, 0));
+			camera.position = gfx.rayLand.origin.clone().subSelf(new THREE.Vector3(0, c.distance - 5, 0));
 		}
 
-		// Reset other users' color.
-		for (var k in self.users) {
-			if (self.users[k] === undefined) continue;
-			
-			if (self.users[k].ball.user.type == 'foe') {
-				self.users[k].ball.materials[0].color.setHex(0x660000);
-			} else if (self.users[k].ball.user.type == 'ally') {
-				self.users[k].ball.materials[0].color.setHex(0x000066);
-			} else if (self.users[k].ball.user.type == 'weak') {
-				self.users[k].ball.materials[0].color.setHex(0x000000);
-			} else if (self.users[k].ball.user.type == 'ghost') {
-				self.users[k].ball.materials[0].color.setHex(0xFFFFFF);
-			}
-		}
-		
-		// Figures out mouse - player collisions and shooting.
-		self.clickId = null;
-		var vector = new THREE.Vector3(self.mouse.x, self.mouse.y, 0.5);
-		self.projector.unprojectVector(vector, self.camera);
-		var rayMouse = new THREE.Ray(self.camera.position, vector.subSelf(self.camera.position).normalize());
-		var c1 = THREE.Collisions.rayCastAll(rayMouse);
-		if (c1.length >=1 && c1.length <=2) {
-			for (var x in c1) {
-				if (c1[x].mesh.user !== undefined && c1[x].mesh.user.type !== undefined) {
-					if (c1[x].mesh.user.type == 'foe') {
-						// Set highlight color.
-						c1[x].mesh.materials[0].color.setHex(0xFF0000);
-						self.clickId = null;
-						if (self.mouseDown) {
-							// Set click color.
-							c1[x].mesh.materials[0].color.setHex(0x00BB00);
-							self.clickId = c1[x].mesh.user.id;
-						}
-					} else if (c1[x].mesh.user.type == 'ally') {
-						c1[x].mesh.materials[0].color.setHex(0x0000FF);
-					}
+		// Reset other players' color.
+		for (var id in gfx.players) {
+			if (gfx.players.hasOwnProperty(id)) {
+				var playerEnt = gfx.players[id];
+
+				if (playerEnt === undefined) {
+					continue;
+				}
+				
+				// Create references for use inside the local scope (faster look-up).
+				var ballUserType = playerEnt.ball.player.type;
+				var ballMaterialColor = playerEnt.ball.materials[0].color;
+
+				if (ballUserType === 'foe') {
+					ballMaterialColor.setHex(0x660000);
+				} else if (ballUserType === 'ally') {
+					ballMaterialColor.setHex(0x000066);
+				} else if (ballUserType === 'weak') {
+					ballMaterialColor.setHex(0x000000);
+				} else if (ballUserType === 'ghost') {
+					ballMaterialColor.setHex(0xFFFFFF);
 				}
 			}
 		}
 		
-		self.camera.position = lastPos.clone();
+		// Figures out mouse - player collisions and shooting.
+		gfx.clickId = null;
+		var vector = new THREE.Vector3(gfx.mouse.x, gfx.mouse.y, 0.5);
+		gfx.projector.unprojectVector(vector, camera);
+		var rayMouse = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+		var c1 = THREE.Collisions.rayCastAll(rayMouse);
+		if (c1.length === 2) {
+			for (var x = 0; x < c1.length; x++) {
+				// Create references for use inside the local scope (faster look-up).
+				var playerInfo = c1[x].mesh.player;
+				var materialColor = c1[x].mesh.materials[0].color;
+
+				if (playerInfo !== undefined && playerInfo.type !== undefined) {
+					if (playerInfo.type === 'foe') {
+						// Set highlight color.
+						materialColor.setHex(0xFF0000);
+						gfx.clickId = null;
+						if (gfx.mouseDown) {
+							// Set click color.
+							materialColor.setHex(0x00BB00);
+							gfx.clickId = playerInfo.id;
+						}
+					} else if (playerInfo.type === 'ally') {
+						materialColor.setHex(0x0000FF);
+					}
+				}
+			}
+		}
 
 		// Cannot notify if an other notification is in progress or -
-		// if user hasn't clicked start yet.
+		// if player hasn't clicked start yet.
 		if (msg.canNotify) {
 			msg.canNotify = false;
 			
@@ -505,18 +544,16 @@ function _Gfx() {
 		}
 
 		// Renders the scene.
-		self.render();
+		gfx.render();
 		
 		// Updates fps stats.
-		self.fps.update();
-	};
+		gfx.fps.update();
+	},
 
 	/**
 	 * Rendering.
 	 */
-	this.render = function() {
-		self.renderer.render(self.scene, self.camera);
-	};
-}
-
-var gfx = new _Gfx();
+	render : function () {
+		gfx.renderer.render(gfx.scene, gfx.camera);
+	}
+};

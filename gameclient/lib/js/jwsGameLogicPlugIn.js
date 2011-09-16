@@ -1,60 +1,62 @@
 // The following line is for JSHint
-/*global jws: true, pools: true */
+/*global jws, pools: true */
 
+/**
+ * The client side jWebSocket plugin.
+ *
+ * @author: Vasilis Raptakis (@scaraveos)
+ */
 jws.GameLogicPlugIn = {
 	NS: "net.scaraveos._3dfoo.server.gamelogic",
 
 	registerStream: function() {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
 				type: "register"
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	},
 
 	unregisterStream: function() {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
 				type: "unregister",
-				message: {
-					// TODO: is this needed?
-					id: pools.player.id
-				}
+				message: {}
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	},
 
 	pong: function() {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
 				type: "pong"
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	},
 	
 	updateChat: function(message) {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
@@ -62,15 +64,15 @@ jws.GameLogicPlugIn = {
 				message: message
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	},
 	
 	insertPlayer: function(message) {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
@@ -78,15 +80,15 @@ jws.GameLogicPlugIn = {
 				message: message
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	},
 	
 	updatePlayer: function(message) {
-		var lRes = this.createDefaultResult();
+		var result = this.createDefaultResult();
 		if(this.isConnected()) {
 			this.sendToken({
 				ns: jws.GameLogicPlugIn.NS,
@@ -94,11 +96,11 @@ jws.GameLogicPlugIn = {
 				message: message
 			});
 		} else {
-			lRes.code = -1;
-			lRes.localeKey = "jws.jsc.res.notConnected";
-			lRes.msg = "Not connected.";
+			result.code = -1;
+			result.localeKey = "jws.jsc.res.notConnected";
+			result.msg = "Not connected.";
 		}
-		return lRes;
+		return result;
 	}
 };
 

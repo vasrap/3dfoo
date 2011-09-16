@@ -1,15 +1,17 @@
-// The following line is for JSHint
-/*global ImprovedNoise: true */
+// The following lines are for JSHint
+/* $, chat, dom, gfx, map, msg, oauth, pools, utils : true */
+/*global ImprovedNoise : true */
 
-function _Utils() {
-	var self = this;
-
+/**
+ * Helper methods
+ */
+var utils = {
 	/**
 	 * Helper method to generate each z for the land object vertices.
 	 * 
 	 * Taken from a three.js example.
 	 */
-	this.generateHeight = function(width, height) {
+	generateHeight : function(width, height) {
 		var size = width * height, data = new Float32Array(size),
 		perlin = new ImprovedNoise(), quality = 1, z = 0.9;
 
@@ -27,7 +29,5 @@ function _Utils() {
 		}
 
 		return data;
-	};
-}
-
-var utils = new _Utils();
+	}
+};
