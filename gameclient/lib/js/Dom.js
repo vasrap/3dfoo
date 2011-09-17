@@ -15,7 +15,20 @@ var dom = {
 	// Logger hidden state.
 	loggerHidden : true,
 
+	// DOM elements.
+	charLifeValueEl : null,
+	charLifeBarEl : null,
+	charPointsValueEl : null,
+	charPowerValueEl : null,
+	charShieldValueEl : null,
+
 	init : function () {
+		dom.charLifeValueEl = document.getElementById('char-life-value');
+		dom.charLifeBarEl = document.getElementById('char-life-bar');
+		dom.charPointsValueEl = document.getElementById('char-points-value');
+		dom.charPowerValueEl = document.getElementById('char-power-value');
+		dom.charShieldValueEl = document.getElementById('char-shield-value');
+
 		var startEl = $('#start');
 		var loginEl = $('#login');
 
@@ -122,12 +135,12 @@ var dom = {
 		var healthPercentage = playerHealth / playerTopHealth * 100;
 		
 		// Update DOM elements.
-		$('#char-life-value').text(playerHealth + ' / ' + playerTopHealth);
-		$('#char-life-bar').css('width', healthPercentage + '%');
-		$('#char-points-value').text(playerPoints);
+		this.charLifeValueEl.innerHTML = playerHealth + ' / ' + playerTopHealth;
+		this.charLifeBarEl.style.width = healthPercentage.toString() + '%';
+		this.charPointsValueEl.innerHTML = playerPoints;
 
 		// Those are not yet available and they are always 0%.
-		$('#char-power-value').text('0%');
-		$('#char-shield-value').text('0%');
+		this.charPowerValueEl.innerHTML = '0%';
+		this.charShieldValueEl.innerHTML = '0%';
 	}
 };

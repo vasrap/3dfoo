@@ -102,13 +102,15 @@ var msg = {
 							pools.updateBcast(data.message);
 
 							gfx.updateWorld();
-							map.update();
-							dom.updateCharacterInfo();
 						}
 					} else if (data.type === 'player') {
 						pools.updatePlayer(data.message);
 						
-						dom.updateCharacterInfo();
+						if (gfx.engineStarted) {
+							dom.updateCharacterInfo();
+							map.update();
+						}
+
 						msg.ping();
 					} else if (data.type === 'defs') {
 						pools.updateDefs(data.message);

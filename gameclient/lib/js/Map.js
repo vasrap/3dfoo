@@ -14,6 +14,7 @@ var map = {
 	mapHeight : $('#map').height(),
 	
 	// Helper variables.
+	el : {},
 	scaleFactorWidth : null,
 	scaleFactorHeight : null,
 	halfMapWidth : null,
@@ -56,31 +57,32 @@ var map = {
 		for (var id in pools.players) {
 			if (pools.players.hasOwnProperty(id)) {
 				var playerInfo = pools.players[id];
+				var playerDef = pools.defs.players[id];
 
-				if (playerInfo) {
-					var playerDef = pools.defs.players[id];
-
+				if (playerInfo && playerDef) {
 					// Set or change player type.
 					var playerType = playerDef.type;
 					if (id === pools.player.id) playerType = 'me';
-					if (document.getElementById('map-' + id) === null) {
+					if (this.el[id] === undefined) {
 						$('#map').append('<div id="map-' + id + '" class="map-dot map-type-' + playerType + '"> </div>');
+						this.el[id.toString()] = document.getElementById('map-' + id);
+					} else {
+						this.el[id.toString()].class = 'map-dot map-type-' + playerType;
 					}
-					$('#map-' + id).attr('class', 'map-dot map-type-' + playerType);
 					
-					// Calculate player position on the map.
-					var topPos = map.halfMapHeight + (playerInfo.position.x * map.scaleFactorHeight);
-					var rightPos = map.halfMapWidth + (playerInfo.position.z * map.scaleFactorWidth);
+					// Calculate player position on the this.
+					var topPos = this.halfMapHeight + (playerInfo.position.x * this.scaleFactorHeight);
+					var rightPos = this.halfMapWidth + (playerInfo.position.z * this.scaleFactorWidth);
 
-					// Don't let the player dot to drift outside the map.
-					if (topPos > map.mapHeightM5) topPos = map.mapHeightM5;
-					if (rightPos > map.mapWidthM5) rightPos = map.mapWidthM5;
+					// Don't let the player dot to drift outside the this.
+					if (topPos > this.thisHeightM5) topPos = this.thisHeightM5;
+					if (rightPos > this.thisWidthM5) rightPos = this.thisWidthM5;
 					if (topPos < 0) topPos = 0;
 					if (rightPos < 0) rightPos = 0;
 
-					// Set player position on the map.
-					$('#map-' + id).css('top', topPos);
-					$('#map-' + id).css('right', rightPos);
+					// Set player position on the this.
+					this.el[id].style.top = topPos;
+					this.el[id].style.right = rightPos;
 				}
 			}
 		}
