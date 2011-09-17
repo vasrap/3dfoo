@@ -1,9 +1,17 @@
+"""
+Facebook specific logic.
+"""
+
 import urlparse
 import urllib
 import httplib
 import json
 
 class oauth(object):
+	"""
+	The oauth object knows how to authorize a Facebook user.
+	"""
+
 	api_key = ''
 	api_secret = ''
 	
@@ -20,6 +28,11 @@ class oauth(object):
 		self.session = session
 
 	def testToken(self):
+		"""
+		- Tests if the saved token is still valid.
+		- Returns the token if valid.
+		"""
+
 		if self.session.oauth_network == 'facebook' and self.session.oauth_token != '':
 			conn = httplib.HTTPSConnection(self.graph_url)
 			
@@ -44,6 +57,8 @@ class oauth(object):
 			return {'error': True}
 
 	def request(self):
+		""" Builds the authorization url. """
+
 		self.session.oauth_network = 'facebook'
 		self.session.oauth_token_secret = 'n/a'
 		
@@ -55,6 +70,8 @@ class oauth(object):
 			'error': False}
 
 	def access(self, authorize_params_str):
+		""" Retrieves the access token. """
+
 		if self.session.oauth_network == 'facebook' and self.session.oauth_token_secret != '':
 			authorize_params = dict(urlparse.parse_qsl(authorize_params_str))
 			

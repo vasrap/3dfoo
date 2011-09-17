@@ -1,9 +1,17 @@
+"""
+Twitter specific logic.
+"""
+
 import urlparse
 import urllib
 import oauth2
 import json
 
 class oauth(object):
+	"""
+	The oauth object knows how to authorize a Twitter user.
+	"""
+
 	consumer_key = ''
 	consumer_secret = ''
 	
@@ -18,6 +26,11 @@ class oauth(object):
 		self.session = session
 
 	def testToken(self):
+		"""
+		- Tests if the saved token is still valid.
+		- Returns the token if valid.
+		"""
+
 		if self.session.oauth_network == 'twitter' and self.session.oauth_token != '':
 			token = oauth2.Token(self.session.oauth_token, self.session.oauth_token_secret)
 			consumer = oauth2.Consumer(self.consumer_key, self.consumer_secret)
@@ -45,6 +58,8 @@ class oauth(object):
 
 
 	def request(self):
+		""" Builds the authorization url. """
+
 		consumer = oauth2.Consumer(self.consumer_key, self.consumer_secret)
 		client = oauth2.Client(consumer)
 
@@ -60,6 +75,8 @@ class oauth(object):
 		return {'authorize_url': self.authorize_url + '?oauth_token=' + request_token['oauth_token'], 'error': False}
 
 	def access(self, authorize_params_str):
+		""" Retrieves the access token. """
+
 		if self.session.oauth_network == 'twitter' and self.session.oauth_token_secret != '':
 			consumer = oauth2.Consumer(self.consumer_key, self.consumer_secret)
 			client = oauth2.Client(consumer)
