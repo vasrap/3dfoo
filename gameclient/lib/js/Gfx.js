@@ -458,7 +458,7 @@ var gfx = {
 		}	
 
 		// Add land for collision detection.
-		//THREE.Collisions.colliders.push(THREE.CollisionUtils.MeshColliderWBox(land));
+		THREE.Collisions.colliders.push(THREE.CollisionUtils.MeshColliderWBox(land));
 
 		return result;
 	},

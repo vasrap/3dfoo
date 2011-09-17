@@ -3,7 +3,7 @@
 /*global ImprovedNoise : true */
 
 /**
- * Helper methods
+ * Helper methods.
  */
 var utils = {
 	/**

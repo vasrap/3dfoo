@@ -130,7 +130,7 @@ ul, li {
 	margin: 0 0 0 10px;
 	position: relative;
 }
-#char-life .value {
+#char-life-value {
 	width: 100%;
 	height: 100%;
 	padding: 10px 0 0 0;

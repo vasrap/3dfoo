@@ -122,12 +122,12 @@ var dom = {
 		var healthPercentage = playerHealth / playerTopHealth * 100;
 		
 		// Update DOM elements.
-		$('#char-life .value').text(playerHealth + ' / ' + playerTopHealth);
+		$('#char-life-value').text(playerHealth + ' / ' + playerTopHealth);
 		$('#char-life-bar').css('width', healthPercentage + '%');
-		$('#char-points .value').text(playerPoints);
+		$('#char-points-value').text(playerPoints);
 
 		// Those are not yet available and they are always 0%.
-		$('#char-power .value').text('0%');
-		$('#char-shield .value').text('0%');
+		$('#char-power-value').text('0%');
+		$('#char-shield-value').text('0%');
 	}
 };

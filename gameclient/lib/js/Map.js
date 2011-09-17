@@ -55,10 +55,9 @@ var map = {
 	update : function() {
 		for (var id in pools.players) {
 			if (pools.players.hasOwnProperty(id)) {
-				// Create references for use inside the local scope (faster look-up).
-				var player = pools.players[id];
+				var playerInfo = pools.players[id];
 
-				if (player) {
+				if (playerInfo) {
 					var playerDef = pools.defs.players[id];
 
 					// Set or change player type.
@@ -66,17 +65,16 @@ var map = {
 					if (id === pools.player.id) playerType = 'me';
 					if (document.getElementById('map-' + id) === null) {
 						$('#map').append('<div id="map-' + id + '" class="map-dot map-type-' + playerType + '"> </div>');
-					} else if ($('#map-' + id).attr('class') !== ('map-dot map-type-' + playerType)) {
-						$('#map-' + id).attr('class', 'map-dot map-type-' + playerType);
 					}
+					$('#map-' + id).attr('class', 'map-dot map-type-' + playerType);
 					
 					// Calculate player position on the map.
-					var topPos = map.halfMapHeight + (player.position.x * map.scaleFactorHeight);
-					var rightPos = map.halfMapWidth + (player.position.z * map.scaleFactorWidth);
-					if (topPos + 5 > map.mapHeight) topPos = map.mapHeightM5;
-					if (rightPos + 5 > map.mapWidth) rightPos = map.mapWidthM5;
+					var topPos = map.halfMapHeight + (playerInfo.position.x * map.scaleFactorHeight);
+					var rightPos = map.halfMapWidth + (playerInfo.position.z * map.scaleFactorWidth);
 
 					// Don't let the player dot to drift outside the map.
+					if (topPos > map.mapHeightM5) topPos = map.mapHeightM5;
+					if (rightPos > map.mapWidthM5) rightPos = map.mapWidthM5;
 					if (topPos < 0) topPos = 0;
 					if (rightPos < 0) rightPos = 0;
 

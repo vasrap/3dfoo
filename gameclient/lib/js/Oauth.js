@@ -9,7 +9,7 @@
  * @author: Vasilis Raptakis (@scaraveos)
  */
 var oauth = {
-	// Count after 3 then stop trying to access the rest service.
+	// Count up to 3, then stop trying to access the rest service.
 	retryCount : 0,
 
 	// Generate oauth url method.
