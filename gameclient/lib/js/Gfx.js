@@ -241,8 +241,6 @@ var gfx = {
 						(5.1 * Math.sin(playerUpd.rotation.phi) * Math.cos(playerUpd.rotation.theta));
 					playerEnt.playerPic.position.z = 
 						(5.1 * Math.sin(playerUpd.rotation.phi) * Math.sin(playerUpd.rotation.theta));
-					playerEnt.playerPic.position.y = 
-						(5.1 * Math.cos(playerUpd.rotation.phi));
 					playerEnt.playerPic.rotation.y = 
 						(-1 * playerUpd.rotation.theta) + 1.57;
 					
@@ -321,9 +319,12 @@ var gfx = {
 	getPlayerPic : function (playerPic) {
 		var geometry = 
 			new THREE.PlaneGeometry(6.5, 6.5, 154, 128);
-		var material = 
-			new THREE.MeshBasicMaterial({
-				map: THREE.ImageUtils.loadTexture(playerPic)});
+
+		// Get image from local proxy to avoid cross origin requests.
+		var playerPicUrl = '/rest/service.py/pic-proxy/' + encodeURI(playerPic);
+
+		var texture = THREE.ImageUtils.loadTexture(playerPicUrl);
+		var material = new THREE.MeshBasicMaterial({map: texture});
 		var ent = new THREE.Mesh(geometry, material);
 		ent.doubleSided = false;
 

@@ -126,7 +126,6 @@ var dom = {
 	 * Update character info.
 	 */
 	updateCharacterInfo : function () {
-		var loggerEl = $('#logger');
 		var playerHealth = pools.player.health;
 		var playerTopHealth = pools.player.topHealth;
 		var playerPoints = pools.player.points;

@@ -101,7 +101,7 @@ var msg = {
 						if (gfx.engineStarted) {
 							pools.updateBcast(data.message);
 
-							gfx.updateWorld();
+							gfx.updatePlayers();
 						}
 					} else if (data.type === 'player') {
 						pools.updatePlayer(data.message);
@@ -109,6 +109,7 @@ var msg = {
 						if (gfx.engineStarted) {
 							dom.updateCharacterInfo();
 							map.update();
+							gfx.updateWorld();
 						}
 
 						msg.ping();

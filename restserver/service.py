@@ -8,6 +8,7 @@ abspath = os.path.dirname(__file__)
 sys.path.append(abspath)
 
 import web
+import urllib2
 from lib.network.twitter import oauth as twitter_oauth
 from lib.network.facebook import oauth as facebook_oauth
 from lib.controller.network import oauth as oauth_controller
@@ -15,6 +16,7 @@ from lib.controller.network import oauth as oauth_controller
 """ Setup urls. """
 web.config.debug = False
 urls = (
+	"/pic-proxy/(.+)", "pic_proxy",
 	"/oauth-twitter/(.+)", "oauth_twitter",
 	"/oauth-facebook/(.+)", "oauth_facebook"
 )
@@ -28,6 +30,18 @@ session = web.session.Session(app, web.session.DiskStore('/tmp/3dfoo-sessions'),
 		'network_user_id': '', 'network_user_name': ''
 	}
 )
+
+class pic_proxy:
+	""" Proxies images to avoid cross origin requests. """
+
+	def GET(self, url):
+		web.header('Content-Type','image', unique=True)
+
+		url = url.replace('/', '//', 1)
+		req = urllib2.Request(url)
+		f = urllib2.urlopen(req)
+
+		return f.read()
 
 class oauth_twitter:
 	""" Handles Twitter oauth requests. """

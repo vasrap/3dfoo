@@ -93,6 +93,5 @@ var map = {
 	 */
 	remove : function(id) {
 		$('#map-' + id).remove();
-			
 	}
 };
