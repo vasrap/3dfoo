@@ -102,6 +102,7 @@ var msg = {
 							pools.updateBcast(data.message);
 
 							gfx.updatePlayers();
+							gfx.updateBeams();
 						}
 					} else if (data.type === 'player') {
 						pools.updatePlayer(data.message);

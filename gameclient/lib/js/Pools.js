@@ -60,6 +60,9 @@ var pools = {
 			if (pools.player.health === 0) {
 				gfx.deadEffect();
 			} else {
+				if (pools.lastHealth === 0) {
+					gfx.cameraActive();
+				}
 				gfx.damageEffect();
 			}
 		}

@@ -49,20 +49,24 @@ var gfx = {
 	fps : null,
 
 	/**
-	 * Toggles camera activity.
+	 * Activates camera.
 	 */
-	toggleActiveCamera : function () {
+	cameraActive : function () {
 		if (gfx.startClicked) {
-			if (gfx.camera.movementSpeed === 0) {
-				gfx.camera.lookSpeed = 3 / 30;
-				gfx.camera.movementSpeed = 200;
-			} else {
-				gfx.camera.lookSpeed = 3 / 3000;
-				gfx.camera.movementSpeed = 0;
-			}
+			gfx.camera.lookSpeed = 3 / 30;
+			gfx.camera.movementSpeed = 200;
 		}
 	},
 	
+	/**
+	 * Deactivates camera.
+	 */
+	cameraInactive : function () {
+		if (gfx.startClicked) {
+			gfx.camera.lookSpeed = 3 / 3000;
+			gfx.camera.movementSpeed = 0;
+		}
+	},
 	/*
 	 * Assigns methods to the mouse events for the overlay element.
 	 * Mostly used for mouse collision detection with other players -
@@ -110,7 +114,7 @@ var gfx = {
 
 		overlayEl.css({'background': '#880000'});
 		overlayEl.css({'opacity': 0.8});
-		gfx.toggleActiveCamera();
+		gfx.cameraInactive();
 	},
 	
 	/**
@@ -260,7 +264,7 @@ var gfx = {
 		// Removes in-active beams.
 		for (var id in gfx.beams) {
 			if (gfx.beams.hasOwnProperty(id)) {
-				if (!gfx.beams[id]) {
+				if (!pools.beams[id]) {
 					gfx.scene.removeChild(gfx.beams[id]);
 					delete gfx.beams[id];
 				}
@@ -270,8 +274,8 @@ var gfx = {
 		// Inserts new beams.
 		// Already added beams are automatically managed since their geometry -
 		// is a reference to the player 3D objects.
-		for (id in gfx.beams) {
-			if (gfx.beams.hasOwnProperty(id)) {
+		for (id in pools.beams) {
+			if (pools.beams.hasOwnProperty(id)) {
 				var beamEnt = gfx.beams[id];
 				var playerEnt = gfx.players[id];
 
@@ -388,7 +392,7 @@ var gfx = {
 		gfx.animate();
 
 		// Activate camera.
-		gfx.toggleActiveCamera();
+		gfx.cameraActive();
 	},
 
 	/**

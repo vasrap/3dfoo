@@ -66,17 +66,16 @@ var map = {
 					if (this.el[id] === undefined) {
 						$('#map').append('<div id="map-' + id + '" class="map-dot map-type-' + playerType + '"> </div>');
 						this.el[id.toString()] = document.getElementById('map-' + id);
-					} else {
-						this.el[id.toString()].class = 'map-dot map-type-' + playerType;
 					}
+					this.el[id].className = 'map-dot map-type-' + playerType;
 					
 					// Calculate player position on the this.
 					var topPos = this.halfMapHeight + (playerInfo.position.x * this.scaleFactorHeight);
 					var rightPos = this.halfMapWidth + (playerInfo.position.z * this.scaleFactorWidth);
 
 					// Don't let the player dot to drift outside the this.
-					if (topPos > this.thisHeightM5) topPos = this.thisHeightM5;
-					if (rightPos > this.thisWidthM5) rightPos = this.thisWidthM5;
+					if (topPos > this.mapHeightM5) topPos = this.mapHeightM5;
+					if (rightPos > this.mapWidthM5) rightPos = this.mapWidthM5;
 					if (topPos < 0) topPos = 0;
 					if (rightPos < 0) rightPos = 0;
 
@@ -93,5 +92,6 @@ var map = {
 	 */
 	remove : function(id) {
 		$('#map-' + id).remove();
+		delete this.el[id];
 	}
 };
