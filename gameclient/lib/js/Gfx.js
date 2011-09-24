@@ -12,10 +12,14 @@ var gfx = {
 	// The WebGL renderer.
 	renderer : null,
 
+	// Helper renderer.
+	helperCntr : null,
+	helperRndr : null,
+
 	// Camera and scene.
 	camera : null,
 	scene : null,
-	
+
 	// Used for detecting collisions.	
 	rayLand : null,
 	projector : null,
@@ -39,7 +43,7 @@ var gfx = {
 	startClicked : false,
 
 	// Mouse handling variables.
-	mouse : {x: 0, y: 0},
+	mouse : {x: 0, y: 0, xx: 0, yy: 0},
 	mouseDown : false,
 	
 	// The clicked player id.
@@ -80,6 +84,9 @@ var gfx = {
 
 			gfx.mouse.x = (e.clientX / dom.width) * 2 - 1;
 			gfx.mouse.y = - (e.clientY / dom.height) * 2 + 1;
+
+			gfx.mouse.xx = e.clientX;
+			gfx.mouse.yy = e.clientY;
 		};
 		overlayEl.onmousedown = function (e) {
 			e.preventDefault();
@@ -144,12 +151,9 @@ var gfx = {
 					} else if (playerType === 'ally') {
 						ballColor = 0x000066;
 					} else if (playerType === 'weak') {
-						ballColor = 0x000000;
+						ballColor = 0xFFA500;
 					} else if (playerType === 'ghost') {
 						ballColor = 0xFFFFFF;
-					} else {
-						// TODO: something went wrong
-						return alert('ERROR: 1');
 					}
 
 					// Create the player ball 3D object.
@@ -339,6 +343,12 @@ var gfx = {
 	 * Initializes THREE renderer and starts the rendering process.
 	 */
 	init : function (position) {
+		// Initialize helper renderer.
+		gfx.helperCntr = document.getElementById('helperCntr');
+		gfx.helperRndr = helperCntr.getContext('2d');
+		gfx.helperRndr.canvas.width = dom.width;
+		gfx.helperRndr.canvas.height = dom.height;
+
 		var containerEl = document.getElementById('container');
 
 		// Try to initialize 3D the renderer.
@@ -556,9 +566,31 @@ var gfx = {
 	},
 
 	/**
+	 * Helper renderer.
+	 *
+	 * Currently used for simulating player beam gun.
+	 */
+	helperRenderer : function() {
+		// Reset helper canvas.
+		gfx.helperRndr.canvas.width = dom.width;
+
+		if (gfx.mouseDown) {
+			gfx.helperRndr.strokeStyle = '#f00';
+		} else {
+			gfx.helperRndr.strokeStyle = '#500';
+		}
+
+		gfx.helperRndr.moveTo(gfx.mouse.xx, gfx.mouse.yy);
+		gfx.helperRndr.lineTo(dom.width * 0.5, dom.height - 50);
+
+		gfx.helperRndr.stroke();
+	},
+
+	/**
 	 * Rendering.
 	 */
 	render : function () {
 		gfx.renderer.render(gfx.scene, gfx.camera);
+		gfx.helperRenderer();
 	}
 };
