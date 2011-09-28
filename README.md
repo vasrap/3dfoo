@@ -1,7 +1,5 @@
-<h1>~~~~ 3D &lt;foo&gt; BETA ~~~~</h1>
+<h1>3D &lt;foo&gt; BETA</h1>
 <h4>A 3D game prototype for the browser</h4>
-<h3>CREDITS</h3>
-<p>Coming soon</h3>
 <h3>TODOs</h3>
 <p>
 	<strong>BUGS:</strong>
@@ -31,3 +29,5 @@
 		<li>Add fullscreen support</li>
 	</ul>
 </p>
+<h3>CREDITS</h3>
+<p>Coming soon</h3>
