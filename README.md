@@ -1,5 +1,6 @@
 <h1>3D &lt;foo&gt; BETA</h1>
 <h4>A 3D game prototype for the browser</h4>
+<h3>PENDING TASKS</h3>
 <p>
 	<strong>BUGS:</strong>
 	<ul>
@@ -19,6 +20,8 @@
 <strong>FEATURES:</strong>
 	<ul>
 		<li>Add build script</li>
+		<li>Add about information and credits<li>
+		<li>Add ability to show other players' life<li>
 		<li>Add addons</li>
 		<li>Add AI emenies</li>
 		<li>Add more team options</li>
