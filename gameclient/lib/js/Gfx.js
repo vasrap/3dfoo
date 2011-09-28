@@ -576,14 +576,12 @@ var gfx = {
 
 		if (gfx.mouseDown) {
 			gfx.helperRndr.strokeStyle = '#f00';
-		} else {
-			gfx.helperRndr.strokeStyle = '#500';
+
+			gfx.helperRndr.moveTo(gfx.mouse.xx, gfx.mouse.yy);
+			gfx.helperRndr.lineTo(dom.width * 0.5, dom.height - 50);
+
+			gfx.helperRndr.stroke();
 		}
-
-		gfx.helperRndr.moveTo(gfx.mouse.xx, gfx.mouse.yy);
-		gfx.helperRndr.lineTo(dom.width * 0.5, dom.height - 50);
-
-		gfx.helperRndr.stroke();
 	},
 
 	/**

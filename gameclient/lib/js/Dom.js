@@ -71,21 +71,6 @@ var dom = {
 		};
 		
 		document.onkeyup = function (e) {
-			// Create references for use inside the local scope (faster look-up).
-			var loginEl = $('#login');
-
-			// Catch tab key up event and stop it from propagating.
-			// Toggles logger visibility.
-			if (e.keyCode === 9) {
-				if (loginEl.is(':visible')) {
-					loginEl.hide();
-				} else {
-					loginEl.show();
-				}
-				
-				e.preventDefault();
-				e.stopPropagation();
-			}
 		};
 	},
 	

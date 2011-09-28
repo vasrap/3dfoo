@@ -74,7 +74,7 @@ public class BcastStream extends TokenStream {
 			
 			while (isRunning) {
 				try {
-					Thread.sleep(1000 / 20);
+					Thread.sleep(1000 / 35);
 
 					put(gameEngine.getBcastToken());
 				} catch (InterruptedException e) {

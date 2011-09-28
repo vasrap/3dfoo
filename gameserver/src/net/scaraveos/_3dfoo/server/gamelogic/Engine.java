@@ -115,7 +115,7 @@ public class Engine {
 				name = user.getScreenName();
 				
 				picture = twitter.getProfileImage(name, ProfileImage.NORMAL).getURL();
-			} catch (TwitterException te) {
+			} catch (TwitterException e) {
 				// TODO: return error to client
 			}
 		} else if (oauthNetwork.equals("facebook")) {
