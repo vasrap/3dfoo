@@ -1,6 +1,5 @@
 <h1>3D &lt;foo&gt; BETA</h1>
 <h4>A 3D game prototype for the browser</h4>
-<h3>TODOs</h3>
 <p>
 	<strong>BUGS:</strong>
 	<ul>
