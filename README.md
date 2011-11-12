@@ -1,5 +1,5 @@
 <h1>3D &lt;foo&gt; BETA</h1>
-<h4>A multiplayer 3D game prototype for the browser</h4>
+<h4>a multiplayer 3D game prototype for the browser</h4>
 <p><i>Works with Chrome 9+ and Firefox 6+</i></p>
 <p>
 <img src="http://3dfoo.net/lib/img/3dfoo1.jpg" />
