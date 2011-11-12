@@ -57,8 +57,8 @@ var gfx = {
 	 */
 	cameraActive : function () {
 		if (gfx.startClicked) {
-			gfx.camera.lookSpeed = 3 / 30;
-			gfx.camera.movementSpeed = 200;
+			gfx.camera.controls.lookSpeed = 3 / 30;
+			gfx.camera.controls.movementSpeed = 200;
 		}
 	},
 	
@@ -67,8 +67,8 @@ var gfx = {
 	 */
 	cameraInactive : function () {
 		if (gfx.startClicked) {
-			gfx.camera.lookSpeed = 3 / 3000;
-			gfx.camera.movementSpeed = 0;
+			gfx.camera.controls.lookSpeed = 3 / 3000;
+			gfx.camera.controls.movementSpeed = 0;
 		}
 	},
 	/*
@@ -185,8 +185,8 @@ var gfx = {
 					var playerPic = gfx.getPlayerPic(playerDef.picture);
 
 					// Assign text and picture as child 3D objects.
-					ball.addChild(playerIdText);
-					ball.addChild(playerPic);
+					ball.add(playerIdText);
+					ball.add(playerPic);
 
 					// Initialize player.
 					var newPlayerEnt = {};
@@ -197,7 +197,7 @@ var gfx = {
 					newPlayerEnt.playerPic = playerPic;
 					
 					// Add player 3D object to the scene.
-					gfx.scene.addChild(ball);
+					gfx.scene.add(ball);
 					
 					// Add new player to the players pool.
 					gfx.players[id.toString()] = newPlayerEnt;
@@ -294,7 +294,7 @@ var gfx = {
 
 					gfx.beams[id.toString()] = beam;
 
-					gfx.scene.addChild(beam);
+					gfx.scene.add(beam);
 
 				// If the 3D beam object already exists.
 				} else if (beamEnt) {
@@ -329,7 +329,7 @@ var gfx = {
 			new THREE.PlaneGeometry(6.5, 6.5, 154, 128);
 
 		// Get image from local proxy to avoid cross origin requests.
-		var playerPicUrl = '/rest/service.py/pic-proxy/' + encodeURI(playerPic);
+		var playerPicUrl = '/rest/service.py/picproxy/' + encodeURI(playerPic);
 
 		var texture = THREE.ImageUtils.loadTexture(playerPicUrl);
 		var material = new THREE.MeshBasicMaterial({map: texture});
@@ -344,10 +344,10 @@ var gfx = {
 	 */
 	init : function (position) {
 		// Initialize helper renderer.
-		gfx.helperCntr = document.getElementById('helperCntr');
-		gfx.helperRndr = helperCntr.getContext('2d');
-		gfx.helperRndr.canvas.width = dom.width;
-		gfx.helperRndr.canvas.height = dom.height;
+		//gfx.helperCntr = document.getElementById('helperCntr');
+		//gfx.helperRndr = helperCntr.getContext('2d');
+		//gfx.helperRndr.canvas.width = dom.width;
+		//gfx.helperRndr.canvas.height = dom.height;
 
 		var containerEl = document.getElementById('container');
 
@@ -412,30 +412,35 @@ var gfx = {
 		// Scene and camera instantiation.
 		var result = {
 			"scene": new THREE.Scene(),
-			"camera": new THREE.FirstPersonCamera({
+			"camera": new THREE.PerspectiveCamera(60, dom.width / dom.height, 1, 20000)/*{
 				"fov"   : 45.000000,
 				"aspect": dom.width / dom.height,
 				"near"  : 0.01,
-				"far"   : 1000000.00,				
-				"movementSpeed": 0,
-				"lookVertical": false,
-				"lookSpeed": 3 / 3000
-			})
+				"far"   : 1000000.00
+			})*/
 		};
 		result.camera.position.y = gfx.position.x;
 		result.camera.position.x = gfx.position.y;
 		result.camera.position.z = 0;
 
+		// Initialize controls.
+		controls = new THREE.FirstPersonControls(result.camera);
+		controls.movementSpeed = 0;
+		controls.lookSpeed = 3 / 3000;
+		controls.lookVertical = false;
+		// Put controls to camera.
+		result.camera.controls = controls;
+
 		// Point light instantiation.
-		var sunPointLight = new THREE.PointLight(0x222222, 6);
+		var sunPointLight = new THREE.PointLight(0xffffff, 1);
 		sunPointLight.position.y = 2200;
-		result.scene.addChild(sunPointLight);
+		result.scene.add(sunPointLight);
 
 		// Sun 3D object instantiation.
 		var sunMaterial = new THREE.MeshBasicMaterial({color: 0xFFD700});
 		var sun = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 32), sunMaterial);
 		sun.position.y = 2200;
-		result.scene.addChild(sun);
+		result.scene.add(sun);
 
 		// Sky 3D object instantiation.
 		var skyGeometry = new THREE.SphereGeometry(16000, 32, 32);
@@ -444,7 +449,7 @@ var gfx = {
 		sky.flipSided = true;	
 		sky.rotation.x = Math.PI / 2;
 		sky.position.y = 2500;
-		result.scene.addChild(sky);
+		result.scene.add(sky);
 
 		// Land geometry.
 		var data = utils.generateHeight(32, 32);
@@ -453,11 +458,11 @@ var gfx = {
 			landGeometry.vertices[i].position.z = data[i] * 20;
 		}
 		// Land material.
-		var landMaterial = new THREE.MeshPhongMaterial({ambient: 0x009900, color: 0xff0000, shininess: 30, shading: THREE.FlatShading});
+		var landMaterial = new THREE.MeshPhongMaterial({color: 0xffcc33, shininess: 2, shading: THREE.FlatShading});
 		// Land 3D object instantiation.
 		var land = new THREE.Mesh(landGeometry, landMaterial);
 		land.rotation.x = - Math.PI / 2;
-		result.scene.addChild(land);
+		result.scene.add(land);
 
 		// Creates a grid out of 3D spheres on top of the land object.
 		for (var k = 0; k < land.geometry.vertices.length; k = k + 10) {
@@ -469,7 +474,7 @@ var gfx = {
 			ball.position.z =  - ball.position.y;
 			ball.position.y = tmpZ + 15;
 
-			result.scene.addObject(ball);
+			result.scene.add(ball);
 		}	
 
 		// Add land for collision detection.
@@ -588,7 +593,8 @@ var gfx = {
 	 * Rendering.
 	 */
 	render : function () {
+		controls.update();
 		gfx.renderer.render(gfx.scene, gfx.camera);
-		gfx.helperRenderer();
+		//gfx.helperRenderer();
 	}
 };

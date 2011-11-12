@@ -51,8 +51,8 @@ var msg = {
 			position:	{x: gfx.camera.position.x.toFixed(2), 
 						 y: gfx.camera.position.y.toFixed(2), 
 						 z: gfx.camera.position.z.toFixed(2)},
-			rotation:	{phi:	gfx.camera.phi.toFixed(2),
-						 theta: gfx.camera.theta.toFixed(2)}});
+			rotation:	{phi:	gfx.camera.controls.phi.toFixed(2),
+						 theta: gfx.camera.controls.theta.toFixed(2)}});
 
 		msg.canNotify = true;
 	},

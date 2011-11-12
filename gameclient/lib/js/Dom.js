@@ -58,6 +58,12 @@ var dom = {
 		
 		// Click handler for login buttons.
 		$('#login .twitter, #login .facebook').click(function () {
+			if ($(this).attr('class') === 'twitter') {
+				alert('There is an issue with the Twitter auth. Please use the Facebook auth.');
+
+				return;
+			}
+
 			// Start oauth process.
 			oauth.get(true, $(this).attr('class'));
 			

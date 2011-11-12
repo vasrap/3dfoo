@@ -16,7 +16,7 @@ var oauth = {
 	url : function(network) {
 		if (network === undefined) return 0;
 
-		return '/rest/service.py/oauth-' + network + '/';
+		return '/rest/service.py/oauth' + network + '/';
 	},
 
 	// Figure out what to do regarding the oauth process.

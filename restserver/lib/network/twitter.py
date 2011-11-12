@@ -41,7 +41,7 @@ class oauth(object):
 				urllib.urlencode({'screen_name': self.session.network_user_name}))
 
 			content = json.loads(content)
-
+			
 			if resp['status'] != '200' or not content[0] > 0:
 				return {'error': True}
 

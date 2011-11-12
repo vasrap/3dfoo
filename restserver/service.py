@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 - This is the main web.py module.
 - Everything starts here!
@@ -16,9 +19,9 @@ from lib.controller.network import oauth as oauth_controller
 """ Setup urls. """
 web.config.debug = False
 urls = (
-	"/pic-proxy/(.+)", "pic_proxy",
-	"/oauth-twitter/(.+)", "oauth_twitter",
-	"/oauth-facebook/(.+)", "oauth_facebook"
+	"/rest/service.py/picproxy/(.+)", "pic_proxy",
+	"/rest/service.py/oauthtwitter/(.+)", "oauth_twitter",
+	"/rest/service.py/oauthfacebook/(.+)", "oauth_facebook",
 )
 
 """ Setup app and session. """
@@ -48,7 +51,7 @@ class oauth_twitter:
 
 	def GET(self, step):
 		web.header('Content-Type','text/html; charset=utf-8', unique=True)
-		
+
 		oauth_obj = twitter_oauth(session)
 		oauth_ctr = oauth_controller(oauth_obj, step)
 		return oauth_ctr.process()
@@ -64,6 +67,5 @@ class oauth_facebook:
 		return oauth_ctr.process()
 
 if __name__ == "__main__":
+	web.wsgi.runwsgi = lambda func, addr=None: web.wsgi.runfcgi(func, addr)
 	app.run()
-
-application = app.wsgifunc()
