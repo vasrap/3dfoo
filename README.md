@@ -26,6 +26,7 @@
 <strong>FEATURES:</strong>
 	<ul>
 		<li>Add build script</li>
+		<li>Add deployment / CI script</li>
 		<li>Add about information and credits</li>
 		<li>Add ability to show other players' life</li>
 		<li>Add addons</li>
