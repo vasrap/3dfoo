@@ -343,11 +343,6 @@ var gfx = {
 	 * Initializes THREE renderer and starts the rendering process.
 	 */
 	init : function (position) {
-		// Initialize helper renderer.
-		//gfx.helperCntr = document.getElementById('helperCntr');
-		//gfx.helperRndr = helperCntr.getContext('2d');
-		//gfx.helperRndr.canvas.width = dom.width;
-		//gfx.helperRndr.canvas.height = dom.height;
 
 		var containerEl = document.getElementById('container');
 
@@ -412,19 +407,14 @@ var gfx = {
 		// Scene and camera instantiation.
 		var result = {
 			"scene": new THREE.Scene(),
-			"camera": new THREE.PerspectiveCamera(60, dom.width / dom.height, 1, 20000)/*{
-				"fov"   : 45.000000,
-				"aspect": dom.width / dom.height,
-				"near"  : 0.01,
-				"far"   : 1000000.00
-			})*/
+			"camera": new THREE.PerspectiveCamera(60, dom.width / dom.height, 1, 20000)
 		};
-		result.camera.position.y = gfx.position.x;
-		result.camera.position.x = gfx.position.y;
+		result.camera.position.x = gfx.position.x;
+		result.camera.position.y = gfx.position.y;
 		result.camera.position.z = 0;
 
 		// Initialize controls.
-		controls = new THREE.FirstPersonControls(result.camera);
+		var controls = new THREE.FirstPersonControls(result.camera);
 		controls.movementSpeed = 0;
 		controls.lookSpeed = 3 / 3000;
 		controls.lookVertical = false;
@@ -593,8 +583,7 @@ var gfx = {
 	 * Rendering.
 	 */
 	render : function () {
-		controls.update();
+		gfx.camera.controls.update();
 		gfx.renderer.render(gfx.scene, gfx.camera);
-		//gfx.helperRenderer();
 	}
 };
