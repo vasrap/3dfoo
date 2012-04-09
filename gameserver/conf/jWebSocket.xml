@@ -72,9 +72,7 @@
 			<!-- these domains are accepted by the engine listening on the above mentioned 
 				port -->
 			<domains>
-				<domain>jwebsocket.org</domain>
-				<domain>jwebsocket.com</domain>
-				<domain>localhost</domain>
+				<domain>http://3dfoo.net</domain>
 			</domains>
 			<!-- default session timeout 1h, max timeout currently 1 hour -->
 			<timeout>0</timeout>
@@ -110,9 +108,7 @@
 			<!-- these domains are accepted by the engine listening on the above mentioned 
 				port -->
 			<domains>
-				<domain>jwebsocket.org</domain>
-				<domain>jwebsocket.com</domain>
-				<domain>localhost</domain>
+                <domain>http://3dfoo.net</domain>
 			</domains>
 			<!-- default session timeout 1h, max timeout currently 1 hour -->
 			<timeout>0</timeout>
@@ -135,8 +131,7 @@
 			<!-- these domains are accepted by the engine listening on the above mentioned 
 				port -->
 			<domains>
-				<domain>javawebsocket.org</domain>
-				<domain>javawebsocket.com</domain>
+                <domain>http://3dfoo.net</domain>
 			</domains>
 			<!-- default session timeout 2min, max timeout currently 1 hour -->
 			<timeout>0</timeout>
