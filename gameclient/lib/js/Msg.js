@@ -75,7 +75,7 @@ var msg = {
 			
 			// Start jWebSocket connection.
 			msg.connection = new jws.jWebSocketJSONClient();
-			var url = "ws://3dfoo.net:8787/";
+			var url = "ws://127.0.0.1:8787/";
 			
 			// Initializes a WebSocket connection.
 			// TODO: figure out user related stuff server side.

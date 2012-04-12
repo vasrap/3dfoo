@@ -388,10 +388,10 @@ var gfx = {
 		
 		// Frames per second stats.
 		gfx.fps = new Stats();
-		gfx.fps.domElement.id = 'fps-stats';
-		gfx.fps.domElement.style.position = 'absolute';
-		gfx.fps.domElement.style.zIndex = 100;
-		containerEl.appendChild(gfx.fps.domElement);
+		gfx.fps.getDomElement().id = 'fps-stats';
+		gfx.fps.getDomElement().style.position = 'absolute';
+		gfx.fps.getDomElement().style.zIndex = 100;
+		containerEl.appendChild(gfx.fps.getDomElement());
 
 		// Trigger the rendering process.
 		gfx.animate();
