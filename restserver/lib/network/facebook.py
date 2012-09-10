@@ -14,13 +14,13 @@ class oauth(object):
 
 	api_key = ''
 	api_secret = ''
-	
+
 	graph_url = 'graph.facebook.com'
 	oauth_suburl = '/oauth/access_token'
 	me_suburl = '/me'
 
 	authorize_url = 'https://www.facebook.com/dialog/oauth'
-	redirect_url = 'http://3dfoo.net/?oauth=facebook'
+	redirect_url = 'http://3dfoo.com/?oauth=facebook'
 
 	session = 0
 
@@ -35,17 +35,17 @@ class oauth(object):
 
 		if self.session.oauth_network == 'facebook' and self.session.oauth_token != '':
 			conn = httplib.HTTPSConnection(self.graph_url)
-			
+
 			conn.request('GET',
 				self.me_suburl + 
 				'?access_token=' + self.session.oauth_token) 
 
 			resp = conn.getresponse()
 			content = json.loads(resp.read())
-			
+
 			if resp.status != 200 or 'error' in content:
 				return {'error': True}
-			
+
 			response = {
 				'oauth_network': 'facebook', 
 				'oauth_token': self.session.oauth_token,
@@ -61,7 +61,7 @@ class oauth(object):
 
 		self.session.oauth_network = 'facebook'
 		self.session.oauth_token_secret = 'n/a'
-		
+
 		return {
 			'authorize_url': 
 				self.authorize_url + 
@@ -74,25 +74,25 @@ class oauth(object):
 
 		if self.session.oauth_network == 'facebook' and self.session.oauth_token_secret != '':
 			authorize_params = dict(urlparse.parse_qsl(authorize_params_str))
-			
+
 			if 'code' not in authorize_params:
 				return {'error': True}
 
 			conn = httplib.HTTPSConnection(self.graph_url)
-			
+
 			conn.request('GET',
-				self.graph_url + self.oauth_suburl + 
-				'?client_id=' + self.api_key + 
-				'&client_secret=' + self.api_secret + 
-				'&code=' + authorize_params['code'] + 
+				self.oauth_suburl +
+				'?client_id=' + self.api_key +
+				'&client_secret=' + self.api_secret +
+				'&code=' + authorize_params['code'] +
 				'&redirect_uri=' + self.redirect_url)
 
 			resp = conn.getresponse()
 			content = resp.read()
-			
+
 			if resp.status != 200:
 				return {'error': True}
-			
+
 			access_token = dict(urlparse.parse_qsl(content))
 
 			self.session.oauth_network = 'facebook'

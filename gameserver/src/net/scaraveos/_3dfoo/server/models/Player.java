@@ -33,7 +33,7 @@ public class Player {
 	public void setConnectorId(String connectorId) {
 		this.connectorId = connectorId;
 	}
-	
+
 	public FastMap getAddons() {
 		return addons;
 	}
@@ -129,7 +129,7 @@ public class Player {
 	public void setTopHealth(Double topHealth) {
 		this.topHealth = topHealth;
 	}
-	
+
 	public Player(String connectorId, String id, String name, String picture, 
 			FastList friends, Long logonTime) {
 		this.connectorId = connectorId;
@@ -139,7 +139,7 @@ public class Player {
 		this.friends = friends;
 		this.logonTime = logonTime;
 	}
-	
+
 	/**
 	 * Checks if player is online looking at the log-on time property.
 	 * 
@@ -149,10 +149,10 @@ public class Player {
 		if (this.logonTime == null) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Returns player definition properties 
 	 * 
@@ -160,11 +160,11 @@ public class Player {
 	 */
 	public FastMap<String, String> toDefMap() {
 		FastMap<String, String> defMap = new FastMap<String, String>();
-		
+
 		defMap.put("id", this.id);
 		defMap.put("name", this.name);
 		defMap.put("picture", this.picture);
-		
+
 		return defMap;
 	}
 
@@ -175,7 +175,7 @@ public class Player {
 	 */
 	public FastMap<String, Object> toUpdateMap(boolean me) {
 		FastMap<String, Object> updateMap = new FastMap<String, Object>();
-		
+
 		if (me) {
 			updateMap.put("id", this.id);
 			updateMap.put("name", this.name);
@@ -190,7 +190,7 @@ public class Player {
 			updateMap.put("damage", this.damage);
 			updateMap.put("locks", this.locks);
 		}
-		
+
 		return updateMap;
 	}
 
@@ -208,22 +208,22 @@ public class Player {
 	 * Updates health
 	 * 
 	 * @param factor
-	 * @param damage 
+	 * @param value
 	 */
 	public void updateHealth(Double factor, Double value) {
 		this.health = this.health + (factor * value);
 	}
-	
+
 	/**
 	 * Updates top health
 	 * 
 	 * @param factor
-	 * @param damage 
+	 * @param value
 	 */
 	public void updateTopHealth(Double factor, Double value) {
 		this.topHealth = this.topHealth + (factor * value);
 	}
-	
+
 	/**
 	 * Updates damage
 	 * 
@@ -233,10 +233,10 @@ public class Player {
 	public void updateDamage(Double factor, Double damage, String clickId) {
 		Double previousDamage = this.damage.get(clickId);
 		if (previousDamage == null) previousDamage = 0.00;
-		
+
 		Double newDamage = 
 			(double) Math.round((previousDamage + (factor * damage)) * 100) / 100;
-		
+
 		this.damage.put(clickId, newDamage);
 	}
 
@@ -248,7 +248,7 @@ public class Player {
 	public void addLock(String clickId) {
 		this.locks.put(clickId, new Date().getTime());
 	}
-	
+
 	/**
 	 * Clear pools that with short life span
 	 * [connects, damage]
@@ -256,11 +256,11 @@ public class Player {
 	private Long timeCheck = new Date().getTime();
 	public void clearShortLifePools() {		
 		Long timeNow = new Date().getTime();
-		
+
 		if (timeNow - this.timeCheck > 1000) {
 			this.damage.clear();
 		}
-		
+
 		// Delete locks that are over 10s old
 		FastList<String> markForDelete = new FastList<String>();
 		for(Map.Entry<String, Long> lock : this.locks.entrySet()) {
@@ -271,7 +271,7 @@ public class Player {
 		for(Integer count = 0; count < markForDelete.size(); count++) {
 			this.locks.remove(markForDelete.get(count));
 		}
-		
+
 		if (timeNow - this.timeCheck > 1001) {
 			this.timeCheck =  new Date().getTime();
 		}

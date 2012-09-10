@@ -127,8 +127,8 @@ public class PlugIn extends TokenPlugIn {
 				this.bcastStream = new BcastStream("gameBcastStream", tokenServer);
 				this.playerStream = new PlayerStream("gamePlayerStream", tokenServer);
 
-				this.bcastStream.setGameEngine(gameEngine);
-				this.playerStream.setGameEngine(gameEngine);
+				this.bcastStream.setGameEngine(this.gameEngine);
+				this.playerStream.setGameEngine(this.gameEngine);
 
 				this.streamsInitialized = true;
 			}

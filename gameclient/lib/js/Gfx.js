@@ -26,29 +26,29 @@ var gfx = {
 
 	// How wide and long is the land plane.
 	landSize : 8000,
-	
+
 	// Starting position.
 	position : [0, 0],
-	
+
 	// Active player 3D objects.
 	players : {},
-	
+
 	// Active beam 3D objects.
 	beams : {},
-	
+
 	// Flag indicating if animation has started.
 	engineStarted : false,
-	
+
 	// Flag indicating if player clicked the start button.
 	startClicked : false,
 
 	// Mouse handling variables.
 	mouse : {x: 0, y: 0, xx: 0, yy: 0},
 	mouseDown : false,
-	
+
 	// The clicked player id.
 	clickId : null,
-	
+
 	// Frames per second.
 	fps : null,
 
@@ -61,7 +61,7 @@ var gfx = {
 			gfx.camera.controls.movementSpeed = 200;
 		}
 	},
-	
+
 	/**
 	 * Deactivates camera.
 	 */
@@ -101,7 +101,7 @@ var gfx = {
 			gfx.mouseDown = !gfx.mouseDown;
 		};
 	},
-	
+
 	// What to do when health is changing.
 	// TODO: create CSS classes to manage the effect.
 	damageEffect : function () {
@@ -113,7 +113,7 @@ var gfx = {
 			overlayEl.css({'opacity': 1});
 		});
 	},
-	
+
 	// What to do when health is 0.
 	// TODO: create CSS classes to manage the effect.
 	deadEffect : function () {
@@ -123,7 +123,7 @@ var gfx = {
 		overlayEl.css({'opacity': 0.8});
 		gfx.cameraInactive();
 	},
-	
+
 	/**
 	 * Updates 3D objects.
 	 */
@@ -142,7 +142,7 @@ var gfx = {
 			if (pools.defs.players.hasOwnProperty(id)) {
 				if (!gfx.players[id] && id !== pools.player.id) {
 					var playerDef = pools.defs.players[id];
-		
+
 					// Figure out how to color players.
 					var playerType = playerDef.type;
 					var ballColor = null;
@@ -195,17 +195,17 @@ var gfx = {
 					newPlayerEnt.ball = ball;
 					newPlayerEnt.playerIdText = playerIdText;
 					newPlayerEnt.playerPic = playerPic;
-					
+
 					// Add player 3D object to the scene.
 					gfx.scene.add(ball);
-					
+
 					// Add new player to the players pool.
 					gfx.players[id.toString()] = newPlayerEnt;
 				}
 			}
 		}
 	},
-	
+
 	/**
 	 * Removes obsolete player 3D objects.
 	 */
@@ -225,7 +225,7 @@ var gfx = {
 			}
 		}
 	},
-	
+
 	/**
 	 * Update active player information.
 	 */
@@ -251,14 +251,14 @@ var gfx = {
 						(5.1 * Math.sin(playerUpd.rotation.phi) * Math.sin(playerUpd.rotation.theta));
 					playerEnt.playerPic.rotation.y = 
 						(-1 * playerUpd.rotation.theta) + 1.57;
-					
+
 					// Update player type (ie. weak, ghost, etc).
 					playerEnt.ball.player.type = pools.defs.players[id].type;
 				}
 			}
 		}
 	},
-	
+
 	/**
 	 * Update the beam 3D objects.
 	 */
@@ -274,7 +274,7 @@ var gfx = {
 				}
 			}
 		}
-		
+
 		// Inserts new beams.
 		// Already added beams are automatically managed since their geometry -
 		// is a reference to the player 3D objects.
@@ -356,7 +356,7 @@ var gfx = {
 
 			return 0;
 		}
-		
+
 		// Set starting position.
 		gfx.position = position;
 
@@ -370,7 +370,7 @@ var gfx = {
 
 		// Variables used for player collision detection.
 		gfx.projector = new THREE.Projector();
-		
+
 		// Load camera, scene, and static objects.
 		var loadScene = gfx.initScene();
 
@@ -385,13 +385,13 @@ var gfx = {
 		containerEl.appendChild(gfx.renderer.domElement);
 
 		dom.log('Initialized 3D environment');
-		
+
 		// Frames per second stats.
 		gfx.fps = new Stats();
-		gfx.fps.getDomElement().id = 'fps-stats';
-		gfx.fps.getDomElement().style.position = 'absolute';
-		gfx.fps.getDomElement().style.zIndex = 100;
-		containerEl.appendChild(gfx.fps.getDomElement());
+		gfx.fps.domElement.id = 'fps-stats';
+		gfx.fps.domElement.style.position = 'absolute';
+		gfx.fps.domElement.style.zIndex = 100;
+		containerEl.appendChild(gfx.fps.domElement);
 
 		// Trigger the rendering process.
 		gfx.animate();
@@ -481,7 +481,7 @@ var gfx = {
 
 		// When this frame is done rendering call animate again.
 		requestAnimationFrame(gfx.animate);
-        
+
 		gfx.rayLand.origin.x = camera.position.x;
 		gfx.rayLand.origin.z = camera.position.z;
 
@@ -499,7 +499,7 @@ var gfx = {
 				if (playerEnt === undefined) {
 					continue;
 				}
-				
+
 				// Create references for use inside the local scope (faster look-up).
 				var ballUserType = playerEnt.ball.player.type;
 				var ballMaterialColor = playerEnt.ball.materials[0].color;
@@ -515,7 +515,7 @@ var gfx = {
 				}
 			}
 		}
-		
+
 		// Figures out mouse - player collisions and shooting.
 		gfx.clickId = null;
 		var vector = new THREE.Vector3(gfx.mouse.x, gfx.mouse.y, 0.5);
@@ -549,13 +549,13 @@ var gfx = {
 		// if player hasn't clicked start yet.
 		if (msg.canNotify) {
 			msg.canNotify = false;
-			
+
 			msg.updatePlayer();
 		}
 
 		// Renders the scene.
 		gfx.render();
-		
+
 		// Updates fps stats.
 		gfx.fps.update();
 	},

@@ -18,7 +18,7 @@ public class BcastStream extends TokenStream {
 		super(streamID, server);
 		this.startStream(-1);
 	}
-	
+
 	public void setGameEngine(Engine gameEngine) {
 		this.gameEngine = gameEngine;
 	}
@@ -40,17 +40,17 @@ public class BcastStream extends TokenStream {
 		if (this.log.isDebugEnabled()) {
 			this.log.debug("Stopping game logic bcast stream...");
 		}
-		
+
 		long started = new Date().getTime();
-		
+
 		this.isRunning = false;
-		
+
 		try {
 			this.gameThread.join(timeout);
 		} catch (Exception e) {
 			this.log.error(e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
-		
+
 		if (this.log.isDebugEnabled()) {
 			long duration = new Date().getTime() - started;
 			if (this.gameThread.isAlive()) {
@@ -69,14 +69,13 @@ public class BcastStream extends TokenStream {
 			if (log.isDebugEnabled()) {
 				log.debug("Running game logic bcast stream...");
 			}
-			
+
 			isRunning = true;
-			
+
 			while (isRunning) {
 				try {
 					Thread.sleep(1000 / 35);
-
-					put(gameEngine.getBcastToken());
+					getServer().broadcastToken(gameEngine.getBcastToken());
 				} catch (InterruptedException e) {
 					log.error("(run) " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				}
