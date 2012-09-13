@@ -12,15 +12,10 @@ public class BcastStream extends TokenStream {
 	private Boolean isRunning = false;
 	private GameProcess gameProcess = null;
 	private Thread gameThread = null;
-	private Engine gameEngine = null;
 
 	public BcastStream(String streamID, TokenServer server) {
 		super(streamID, server);
 		this.startStream(-1);
-	}
-
-	public void setGameEngine(Engine gameEngine) {
-		this.gameEngine = gameEngine;
 	}
 
 	@Override
@@ -74,8 +69,8 @@ public class BcastStream extends TokenStream {
 
 			while (isRunning) {
 				try {
+					getServer().broadcastToken(PlugIn.gameEngine.getBcastToken());
 					Thread.sleep(1000 / 35);
-					getServer().broadcastToken(gameEngine.getBcastToken());
 				} catch (InterruptedException e) {
 					log.error("(run) " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				}

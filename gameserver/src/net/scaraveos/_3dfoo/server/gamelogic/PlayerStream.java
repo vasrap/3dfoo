@@ -15,15 +15,10 @@ public class PlayerStream extends TokenStream {
 	private Boolean isRunning = false;
 	private GameProcess gameProcess = null;
 	private Thread gameThread = null;
-	private Engine gameEngine = null;
 
 	public PlayerStream(String streamID, TokenServer server) {
 		super(streamID, server);
 		this.startStream(-1);
-	}
-	
-	public void setGameEngine(Engine gameEngine) {
-		this.gameEngine = gameEngine;
 	}
 
 	@Override
@@ -43,17 +38,17 @@ public class PlayerStream extends TokenStream {
 		if (this.log.isDebugEnabled()) {
 			this.log.debug("Stopping game logic player stream...");
 		}
-		
+
 		long started = new Date().getTime();
-		
+
 		this.isRunning = false;
-		
+
 		try {
 			this.gameThread.join(timeout);
 		} catch (Exception e) {
 			this.log.error(e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
-		
+
 		if (this.log.isDebugEnabled()) {
 			long duration = new Date().getTime() - started;
 			if (this.gameThread.isAlive()) {
@@ -72,15 +67,15 @@ public class PlayerStream extends TokenStream {
 			if (log.isDebugEnabled()) {
 				log.debug("Running game logic bcast stream...");
 			}
-			
+
 			isRunning = true;
-			
+
 			while (isRunning) {
 				try {
 					Thread.sleep(1000);
 
-					FastMap<String, Token> playerTokens = gameEngine.getPlayerTokens();
-					
+					FastMap<String, Token> playerTokens = PlugIn.gameEngine.getPlayerTokens();
+
 					for (Map.Entry<String, Token> playerToken : playerTokens.entrySet()) {
 						try {
 							getServer().sendToken(

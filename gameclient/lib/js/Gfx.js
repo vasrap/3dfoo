@@ -280,6 +280,11 @@ var gfx = {
 		// is a reference to the player 3D objects.
 		for (id in pools.beams) {
 			if (pools.beams.hasOwnProperty(id)) {
+				// TODO: this is a server side issue. Beams must only have active player ids.
+				if (!gfx.players[id]) {
+					continue;
+				}
+
 				var beamEnt = gfx.beams[id];
 				var playerEnt = gfx.players[id];
 

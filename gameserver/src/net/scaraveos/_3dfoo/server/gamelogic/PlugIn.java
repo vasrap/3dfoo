@@ -22,7 +22,7 @@ public class PlugIn extends TokenPlugIn {
 	private boolean streamsInitialized = false;
 	private BcastStream bcastStream = null;
 	private PlayerStream playerStream = null;
-	private Engine gameEngine = null;
+	public static Engine gameEngine = null;
 
 	public PlugIn(PluginConfiguration aConfiguration) {
 		super(aConfiguration);
@@ -126,9 +126,6 @@ public class PlugIn extends TokenPlugIn {
 			if (tokenServer != null) {
 				this.bcastStream = new BcastStream("gameBcastStream", tokenServer);
 				this.playerStream = new PlayerStream("gamePlayerStream", tokenServer);
-
-				this.bcastStream.setGameEngine(this.gameEngine);
-				this.playerStream.setGameEngine(this.gameEngine);
 
 				this.streamsInitialized = true;
 			}
