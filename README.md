@@ -2,9 +2,7 @@
 <h4>a multiplayer 3D game prototype for the browser</h4>
 <p><i>Works with Chrome 9+ and Firefox 6+</i></p>
 <p>
-<img src="http://3dfoo.net/lib/img/3dfoo1.jpg" />
-&nbsp;
-<img src="http://3dfoo.net/lib/img/3dfoo2.jpg" />
+<img src="http://3dfoo.com/3dfoo3.png" />
 </p>
 <h3>PENDING TASKS</h3>
 <p>
